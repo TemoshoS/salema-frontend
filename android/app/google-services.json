@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848014475182",
+    "project_id": "mansalema-bbc67",
+    "storage_bucket": "mansalema-bbc67.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848014475182:android:7f2143d40d4242edb3d23f",
+        "android_client_info": {
+          "package_name": "mobile.salema.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2-lDIs2q-eHpfRg1eXQu9Zrw4-ZOY_TA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
