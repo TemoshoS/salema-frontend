@@ -6,39 +6,68 @@
  */
 
 import React, { useEffect } from 'react';
-import { Alert, Platform, SafeAreaView, StatusBar, useColorScheme } from 'react-native';
-import AppNavigation from './src/navigation/AppNavigation';
+import {
+  Alert,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  useColorScheme,
+  PermissionsAndroid,
+} from 'react-native';
 import { Provider } from 'react-redux';
-import { persistor, store, useAppSelector } from './src/redux/store';
-import AuthNavigation from './src/navigation/AuthNavigation';
-import messaging from '@react-native-firebase/messaging';
-import { PermissionsAndroid } from 'react-native';
-import { THEME_COLOR } from './src/constants/colors';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
+import messaging from '@react-native-firebase/messaging';
+
+import { store, persistor, useAppSelector } from './src/redux/store';
+import { THEME_COLOR } from './src/constants/colors';
+import AuthNavigation from './src/navigation/AuthNavigation';
+import AppNavigation from './src/navigation/AppNavigation';
 import { AdminStack } from './src/navigation/AdminNavigation';
-import { RoleStrings } from './src/constants/constants';
 import { SecurityCompanyStack } from './src/navigation/SecurityCompanyStack';
 import { SecurityOfficerNavigation } from './src/navigation/SecurityOfficerNavigation';
+
+import { RoleStrings } from './src/constants/constants';
+import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
 import { setupShakeListener } from './src/utils/shake';
+import AutoVoiceListener from './src/containers/AutoListener';
 
 const RootNavigator = () => {
-  // Access the isLoggedIn value from the Redux store
   const { isLoggedIn, userDetails } = useAppSelector(state => state.auth);
+  const { emergencyContacts } = useAppSelector(state => state.emergencyContacts);
+  const role = userDetails?.role;
 
-  return isLoggedIn ? (
-    userDetails?.role === RoleStrings.AD ? (
-      <AdminStack />
-    ) : userDetails?.role === RoleStrings.MG ? (
-      <SecurityCompanyStack />
-    ) : userDetails?.role === RoleStrings.SO ? (
-      <SecurityOfficerNavigation />
-    ) : (
-      <AppNavigation />
-    )
-  ) : (
-    <AuthNavigation />
+  useEffect(() => {
+    if (
+      role === RoleStrings.GU &&
+      Array.isArray(emergencyContacts) &&
+      emergencyContacts.length > 0
+    ) {
+      console.log('userDetails:', userDetails);
+
+      const userName = userDetails?.name || 'User'; // fallback if name not available
+      const unsubscribeShake = setupShakeListener(emergencyContacts, userName);
+      return () => unsubscribeShake(); // Cleanup on unmount
+    }
+  }, [emergencyContacts, role, userDetails?.name]);
+  
+
+  if (!isLoggedIn) return <AuthNavigation />;
+
+  return (
+    <>
+      {role === RoleStrings.AD ? (
+        <AdminStack />
+      ) : role === RoleStrings.MG ? (
+        <SecurityCompanyStack />
+      ) : role === RoleStrings.SO ? (
+        <SecurityOfficerNavigation />
+      ) : (
+        <>
+          <AppNavigation />
+        </>
+      )}
+    </>
   );
 };
 
@@ -57,7 +86,7 @@ function App(): React.JSX.Element {
 
       if (Platform.OS === 'android') {
         PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
         );
       } else if (Platform.OS === 'ios') {
         const authStatus = await messaging().requestPermission();
@@ -70,15 +99,13 @@ function App(): React.JSX.Element {
         }
       }
     })();
+
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
     });
 
-    const unsubscribeShake = setupShakeListener();
-
     return () => {
-      unsubscribe;
-      unsubscribeShake(); 
+      unsubscribe();
     };
   }, []);
 

@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, View} from 'react-native';
+import {
+  Alert,
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import FormTextInput from '../../components/FormTextInput';
 import Header from '../../components/Header';
 import CommonButton from '../../components/CommonButton';
@@ -32,6 +38,7 @@ export default function Register() {
 
   const dispatch = useAppDispatch();
   const {error} = useAppSelector(state => state.auth);
+
   useEffect(() => {
     if (error) {
       Alert.alert('', error.message);
@@ -50,102 +57,97 @@ export default function Register() {
       locality,
       contact,
     } = registerForm;
+
     if (
-      name === '' ||
-      surName === '' ||
-      password === '' ||
-      confirmPassword === '' ||
-      email === '' ||
-      street === '' ||
-      locality === '' ||
-      contact === ''
+      !name ||
+      !surName ||
+      !password ||
+      !confirmPassword ||
+      !email ||
+      !street ||
+      !locality ||
+      !contact
     ) {
       Alert.alert('', PLEASE_FILL_ALL_THE_FIELDS);
       return;
-    } else if (password !== confirmPassword) {
+    }
+
+    if (password !== confirmPassword) {
       Alert.alert('', 'The password and confirmation password do not match.');
       return;
-    } else {
-      // Alert.alert('', 'Data correct');
-      dispatch(
-        register({
-          firstName: name,
-          password: password,
-          surname: surName,
-          email: email,
-          address: street + ' ' + locality,
-          role: 'GU',
-          contact: contact,
-        }),
-      );
     }
+
+    dispatch(
+      register({
+        firstName: name,
+        password: password,
+        surname: surName,
+        email: email,
+        address: `${street} ${locality}`,
+        role: 'GU',
+        contact: contact,
+      }),
+    );
   };
+
   return (
-    <View>
-      <Header title="" />
-      <FormTextInput
-        label="Name"
-        value={registerForm.name}
-        onTextChanged={text => setRegisterForm({...registerForm, name: text})}
-      />
-      <FormTextInput
-        label="Surname"
-        value={registerForm.surName}
-        onTextChanged={text =>
-          setRegisterForm({...registerForm, surName: text})
-        }
-      />
-      <FormTextInput
-        label="Password"
-        value={registerForm.password}
-        isPassword
-        onTextChanged={text =>
-          setRegisterForm({...registerForm, password: text})
-        }
-      />
-      <FormTextInput
-        label="Confirm Password"
-        value={registerForm.confirmPassword}
-        isPassword
-        onTextChanged={text =>
-          setRegisterForm({...registerForm, confirmPassword: text})
-        }
-      />
-      <FormTextInput
-        label="Email"
-        value={registerForm.email}
-        onTextChanged={text => setRegisterForm({...registerForm, email: text})}
-      />
-      <FormTextInput
-        label="Contact"
-        value={registerForm.contact}
-        onTextChanged={text =>
-          setRegisterForm({...registerForm, contact: text})
-        }
-      />
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '90%',
-        }}>
-        <FormTextInput
-          label="Street"
-          value={registerForm.street}
-          isHalfWidth
-          onTextChanged={text =>
-            setRegisterForm({...registerForm, street: text})
-          }
-        />
-        <FormTextInput
-          label="Locality"
-          value={registerForm.locality}
-          isHalfWidth
-          onTextChanged={text =>
-            setRegisterForm({...registerForm, locality: text})
-          }
-        />
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={{flex: 1}}>
+        <Header title="" />
+        <ScrollView contentContainerStyle={{paddingBottom: 100}}>
+          <FormTextInput
+            label="Name"
+            value={registerForm.name}
+            onTextChanged={text => setRegisterForm({...registerForm, name: text})}
+          />
+          <FormTextInput
+            label="Surname"
+            value={registerForm.surName}
+            onTextChanged={text => setRegisterForm({...registerForm, surName: text})}
+          />
+          <FormTextInput
+            label="Password"
+            value={registerForm.password}
+            isPassword
+            onTextChanged={text => setRegisterForm({...registerForm, password: text})}
+          />
+          <FormTextInput
+            label="Confirm Password"
+            value={registerForm.confirmPassword}
+            isPassword
+            onTextChanged={text =>
+              setRegisterForm({...registerForm, confirmPassword: text})
+            }
+          />
+          <FormTextInput
+            label="Email"
+            value={registerForm.email}
+            onTextChanged={text => setRegisterForm({...registerForm, email: text})}
+          />
+          <FormTextInput
+            label="Contact"
+            value={registerForm.contact}
+            onTextChanged={text => setRegisterForm({...registerForm, contact: text})}
+          />
+          <View style={{flexDirection: 'row', width: '90%', alignSelf: 'center'}}>
+            <FormTextInput
+              label="Street"
+              value={registerForm.street}
+              isHalfWidth
+              onTextChanged={text => setRegisterForm({...registerForm, street: text})}
+            />
+            <FormTextInput
+              label="Locality"
+              value={registerForm.locality}
+              isHalfWidth
+              onTextChanged={text => setRegisterForm({...registerForm, locality: text})}
+            />
+          </View>
+          <CommonButton needTopSpace text="Sign Up" onPress={onSignupPressed} />
+        </ScrollView>
       </View>
-      <CommonButton needTopSpace text="Sign Up" onPress={onSignupPressed} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

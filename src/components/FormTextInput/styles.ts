@@ -17,4 +17,16 @@ export default StyleSheet.create({
     fontFamily: ROBOTO,
     fontSize: 16,
   },
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  
+  iconWrapper: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    zIndex: 1,
+  },
+  
 });

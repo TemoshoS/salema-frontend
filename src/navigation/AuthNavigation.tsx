@@ -6,6 +6,7 @@ import {RootStackParamList} from '../types';
 import Register from '../containers/Register';
 import AuthHome from '../containers/AuthHome';
 import SecurityCompanyRegister from '../containers/SecurityCompanyRegister';
+import SetNewPassword from '../containers/ResetPassword';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,8 @@ const AuthNavigation = () => {
           name="SecurityCompanyRegister"
           component={SecurityCompanyRegister}
         />
+        <Stack.Screen name="SetNewPassword" component={SetNewPassword} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

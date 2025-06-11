@@ -1,19 +1,19 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from "react-native";
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    backgroundColor: '#fff',
   },
-
-  button: {
-    backgroundColor: '#3455eb',
-    padding: 20,
+  content: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
-    borderRadius: 10,
+    paddingHorizontal: 20,
   },
-  footer: {alignItems: 'center', marginBottom: 10},
-  centerContainer:{flex:1,alignItems:'center',justifyContent:'center'
-  }
+  text: {
+    fontSize: 18,
+    color: '#999',
+    textAlign: 'center',
+  },
 });

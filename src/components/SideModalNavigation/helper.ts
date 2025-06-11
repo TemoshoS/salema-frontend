@@ -38,6 +38,7 @@ export const getNavigationOptions = (
   const clientNavigationOptions: NavigationOption[] = [
     {title: 'Home', onPress: () => navigation.navigate('Home')},
     {title: 'Profile', onPress: () => navigation.navigate('Profile')},
+    {title: 'Chat With Us', onPress: () => navigation.navigate('ChatBot')},
     {
       title: 'Create Request',
       onPress: () => navigation.navigate('SelectSecurityCompany'),

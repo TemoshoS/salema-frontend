@@ -14,6 +14,8 @@ import {
 } from '../../redux/emergencyContactSlice';
 import AddEmergencyContactPopup from '../../components/AddEmergencyContactPopup';
 
+
+
 export default function EmergencyContacts() {
   const dispatch = useAppDispatch();
   const [isPopupVisible, setPopupVisible] = useState(false);

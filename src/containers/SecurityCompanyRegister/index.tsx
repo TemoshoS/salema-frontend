@@ -93,7 +93,7 @@ export default function SecurityCompanyRegister() {
   };
   return (
     <View>
-      <Header />
+      <Header title="" />
       <ScrollView style={{marginBottom: 80}}>
         <>
           <FormTextInput

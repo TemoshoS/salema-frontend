@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
           userDetails?.role === RoleStrings.GU ? (
             <TouchableOpacity
               style={{marginEnd: 10}}
-              onPress={() => navigation.navigate('CallEmergencyService')}>
+              onPress={() => navigation.navigate('VoiceCommand' as never)}>
               <Icon name="microphone" size={30} color="#fff" />
             </TouchableOpacity>
           ) : null}

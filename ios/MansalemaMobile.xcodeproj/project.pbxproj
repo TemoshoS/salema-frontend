@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* MansalemaMobileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* MansalemaMobileTests.m */; };
-		A2E9B26DA7EADCB3894B5489 /* libPods-MansalemaMobile-MansalemaMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D778BBB538407BE3EAF6CC13 /* libPods-MansalemaMobile-MansalemaMobileTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,17 +22,11 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MansalemaMobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MansalemaMobile/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = MansalemaMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		4896BB4B01113B2A449D33D3 /* Pods-MansalemaMobile-MansalemaMobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MansalemaMobile-MansalemaMobileTests.debug.xcconfig"; path = "Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5F56A2190EC7655A47A1C452 /* Pods-MansalemaMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MansalemaMobile.debug.xcconfig"; path = "Target Support Files/Pods-MansalemaMobile/Pods-MansalemaMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		66F605E13C8D4A38ADCAD4F0 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Bold.ttf"; path = "../src/assets/fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MansalemaMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		82E1A51EC5FA45308F050D22 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Regular.ttf"; path = "../src/assets/fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
-		C5E2C2A7A6D36A8B97AE763B /* libPods-MansalemaMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MansalemaMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D778BBB538407BE3EAF6CC13 /* libPods-MansalemaMobile-MansalemaMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MansalemaMobile-MansalemaMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8102908CCFAAFE7B89ACCD1 /* Pods-MansalemaMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MansalemaMobile.release.xcconfig"; path = "Target Support Files/Pods-MansalemaMobile/Pods-MansalemaMobile.release.xcconfig"; sourceTree = "<group>"; };
 		DF02F1B52D79F6C100C86D55 /* MansalemaMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = MansalemaMobile.entitlements; path = MansalemaMobile/MansalemaMobile.entitlements; sourceTree = "<group>"; };
 		DF0D314F2D7998860048AA49 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		E29690495CAE9AAEB53AE859 /* Pods-MansalemaMobile-MansalemaMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MansalemaMobile-MansalemaMobileTests.release.xcconfig"; path = "Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -42,7 +35,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2E9B26DA7EADCB3894B5489 /* libPods-MansalemaMobile-MansalemaMobileTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,8 +79,6 @@
 			children = (
 				0B81B3A22CF79DD200F5E664 /* UIKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				C5E2C2A7A6D36A8B97AE763B /* libPods-MansalemaMobile.a */,
-				D778BBB538407BE3EAF6CC13 /* libPods-MansalemaMobile-MansalemaMobileTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -137,10 +127,6 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5F56A2190EC7655A47A1C452 /* Pods-MansalemaMobile.debug.xcconfig */,
-				D8102908CCFAAFE7B89ACCD1 /* Pods-MansalemaMobile.release.xcconfig */,
-				4896BB4B01113B2A449D33D3 /* Pods-MansalemaMobile-MansalemaMobileTests.debug.xcconfig */,
-				E29690495CAE9AAEB53AE859 /* Pods-MansalemaMobile-MansalemaMobileTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -152,12 +138,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "MansalemaMobileTests" */;
 			buildPhases = (
-				76952A880F30713A2428E41A /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				A7DC98FD9FAA547FCDA6FFE5 /* [CP] Embed Pods Frameworks */,
-				722DA915E4ED0F93C16BD8C8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -211,73 +194,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		722DA915E4ED0F93C16BD8C8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		76952A880F30713A2428E41A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MansalemaMobile-MansalemaMobileTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A7DC98FD9FAA547FCDA6FFE5 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MansalemaMobile-MansalemaMobileTests/Pods-MansalemaMobile-MansalemaMobileTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		00E356EA1AD99517003FC87E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -292,7 +208,6 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4896BB4B01113B2A449D33D3 /* Pods-MansalemaMobile-MansalemaMobileTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -319,7 +234,6 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E29690495CAE9AAEB53AE859 /* Pods-MansalemaMobile-MansalemaMobileTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -416,7 +330,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -491,7 +408,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

@@ -15,7 +15,7 @@ const MultipleInput: React.FC<MultiInputProps> = ({
   title,
   buttonText,
   datas,
-  editable = false,
+  editable = true,
   setDatas,
 }) => {
   const [data, setData] = useState<string>(''); // Single skill input

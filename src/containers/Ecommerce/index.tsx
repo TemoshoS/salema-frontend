@@ -1,24 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Text, View} from 'react-native';
-import styles from './styles';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import Header from '../../components/Header';
-import FormTextInput from '../../components/FormTextInput';
-import LogoBanner from '../../components/LogoBanner';
-import CommonButton from '../../components/CommonButton';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {login, resetPage} from '../../redux/authSlice';
-import {validateEmail} from '../../utils/helper';
+import { styles } from './styles';
 
-export default function Ecommerce() {
-  const dispatch = useAppDispatch();
 
+const Ecommerce = () => {
   return (
     <View style={styles.container}>
-      <Header title="E-Commerce" />
-      <View style={styles.centerContainer}>
-        <Text style={{}}>Under Construction</Text>
+      <Header title="E-commerce" />
+      <View style={styles.content}>
+        <Text style={styles.text}>🚧 This feature is still under development.</Text>
       </View>
     </View>
   );
-}
-//
+};
+
+export default Ecommerce;
+
+
+

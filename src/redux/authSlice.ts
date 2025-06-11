@@ -12,6 +12,7 @@ import {RoleStrings} from '../constants/constants';
 
 // Define an interface for the state
 interface RoleProps {
+     
   GU: string;
   MG: string;
   AD: string;
@@ -23,6 +24,7 @@ interface UserProps {
   surname: string;
   email: string;
   address: string;
+  userName?: string; 
 }
 interface ErrorProps {
   message: string;
@@ -49,7 +51,7 @@ const initialState: DataState = {
   isDrawerOpen: false,
 };
 
-// const baseURL = 'http://127.0.0.1';
+
 
 // API call using createAsyncThunk
 export const login = createAsyncThunk(
@@ -82,7 +84,7 @@ export const register = createAsyncThunk(
     try {
       console.log('Register api called');
       const response = await axiosInstance.post(
-        'https://salema-backend1.onrender.com/client/v1/register',
+        '/client/v1/register',
         registerData,
       );
       return response.data;
@@ -200,6 +202,7 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.error = null;
       state.accessToken = null;
+      state.userDetails = null; 
     },
     toggleDrawer: (state, {payload}) => {
       state.isDrawerOpen = payload;

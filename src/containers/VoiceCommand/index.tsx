@@ -1,224 +1,155 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, Image, Alert} from 'react-native';
-import Voice from '@react-native-voice/voice';
-import styles from './styles';
-import AddCommandPopup from '../../components/AddCommandPopup';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {getEmergencyContacts} from '../../redux/emergencyContactSlice';
-import {VOICE_OFF, VOICE_ON} from '../../constants/assets';
+import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header';
-import {
-  createvoiceCommands,
-  resetPage,
-  updateVoiceCommands,
-} from '../../redux/voiceNoteSlice';
-import {useNavigation} from '@react-navigation/native';
-const DEFAULT_VALUE = 'Select an emergency contact';
-
-interface EmergencyContactTypes {
-  _id: string;
-  client: string;
-  createdAt: string;
-  email: string;
-  isDeleted: boolean;
-  name: string;
-  phone: string;
-  voiceCommandText: string;
-  relationship: string;
-  updatedAt: string;
-}
+import { Button, Alert, View, Text, PermissionsAndroid, Platform, ScrollView } from 'react-native';
+import Voice from '@react-native-voice/voice';
+import axiosInstance from '../../utils/axiosInstance';
 
 const VoiceCommand = () => {
-  const [recognizedText, setRecognizedText] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
-  const [isDropDownOpen, setDropDownOpen] = useState(false);
-  const [selectedEmergencyContact, setSelectedEmergencyContact] =
-    useState<EmergencyContactTypes>({
-      _id: '',
-      client: '',
-      createdAt: '',
-      email: '',
-      isDeleted: false,
-      name: DEFAULT_VALUE,
-      phone: '',
-      voiceCommandText: '',
-      relationship: '',
-      updatedAt: '',
-    });
-  const {emergencyContacts} = useAppSelector(state => state.emergencyContacts);
-  const {success, voiceCommands} = useAppSelector(state => state.voiceCommand);
-  const dispatch = useAppDispatch();
-  const navigation = useNavigation();
-  useEffect(() => {
-    dispatch(getEmergencyContacts());
-  }, []);
+  const [isRecording, setIsRecording] = useState(false);
+  const [commands, setCommands] = useState([]);
+ 
 
   useEffect(() => {
     Voice.onSpeechResults = onSpeechResults;
     Voice.onSpeechError = onSpeechError;
 
+    fetchCommands();
+
     return () => {
       Voice.destroy().then(Voice.removeAllListeners);
     };
   }, []);
-  // console.log('voiceCommands', voiceCommands);
-  useEffect(() => {
-    if (success) {
-      dispatch(resetPage());
-      Alert.alert('', `Voice Note Added for ${selectedEmergencyContact.name}`);
-      navigation.goBack();
+
+  const requestMicrophonePermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Microphone Permission',
+            message: 'App needs access to your microphone to record audio.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
     }
-  }, [success]);
-
-  // useEffect(() => {
-  //   const selectedID = voiceCommands.filter(
-  //     item => item.emergencyContact?._id === selectedEmergencyContact._id,
-  //   )[0]._id;
-  //   console.log('selectedID', selectedID);
-  // }, [selectedEmergencyContact]);
-
-  const onSpeechResults = event => {
-    const text = event.value[0];
-
-    setRecognizedText(text);
-
-    stopListening();
+    return true;
   };
 
-  const onSpeechError = error => {
-    setIsListening(false);
-  };
+  const onSpeechResults = async (e: any) => {
+    const spokenText = e.value?.[0]?.toLowerCase() || '';
+    console.log('Processed text:', spokenText);
 
-  const startListening = async () => {
+    if (!spokenText) {
+      Alert.alert('No phrase detected');
+      setIsRecording(false);
+      return;
+    }
+
     try {
-      setIsListening(true);
-      setRecognizedText('');
-      await Voice.start('en-US'); // Set the language for recognition
-    } catch (error) {
-      console.error('Error starting voice recognition:', error);
-      setIsListening(false);
+      const res = await axiosInstance.post('/voice-command/v1/save-recording', {
+        phrase: spokenText,
+      });
+
+      const { recognized, message } = res.data;
+
+      if (recognized) {
+        Alert.alert('Saved', message || `"${spokenText}" saved successfully!`);
+      } else {
+        Alert.alert('Notice', message || `Saved phrase: "${spokenText}" (unrecognized command)`);
+      }
+
+      fetchCommands(); // Refresh list
+    } catch (err) {
+      console.error('Save error:', err);
+      Alert.alert('Error', 'Failed to save phrase');
+    } finally {
+      setIsRecording(false);
     }
   };
 
-  const stopListening = async () => {
+  const onSpeechError = (e: any) => {
+    console.log('Speech recognition error:', e.error);
+    Alert.alert('Speech Error', e.error.message || 'Unknown error');
+    setIsRecording(false);
+  };
+
+  const startRecording = async () => {
+    const hasPermission = await requestMicrophonePermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Denied', 'Microphone permission is required.');
+      return;
+    }
+
+    try {
+      setIsRecording(true);
+      await Voice.start('en-US');
+      console.log('Started listening...');
+    } catch (error) {
+      console.error('Voice start error:', error);
+      setIsRecording(false);
+      Alert.alert('Error', 'Could not start recording');
+    }
+  };
+
+  const stopRecording = async () => {
     try {
       await Voice.stop();
-      setIsListening(false);
+      setIsRecording(false);
+      console.log('Stopped listening...');
     } catch (error) {
-      console.error('Error stopping voice recognition:', error);
+      console.error('Voice stop error:', error);
+      Alert.alert('Error', 'Could not stop recording');
     }
   };
-  const onSaveVoiceNotePressed = () => {
-    console.log('sdfsdf', selectedEmergencyContact.voiceCommandText);
-    selectedEmergencyContact.voiceCommandText === ''
-      ? dispatch(
-          createvoiceCommands({
-            text: recognizedText,
-            type: '',
-            emergencyContact: selectedEmergencyContact?._id,
-          }),
-        )
-      : dispatch(
-          updateVoiceCommands({
-            text: recognizedText,
-            type: '',
-            emergencyContact: voiceCommands.filter(
-              item =>
-                item.emergencyContact?._id === selectedEmergencyContact._id,
-            )[0]._id,
-          }),
-        );
+
+  const fetchCommands = async () => {
+    try {
+      
+const response = await axiosInstance.get(`/voice-command/v1/client`);
+      setCommands(response.data.voiceCommands || []);
+      console.log('Fetched commands:', response.data.voiceCommands);
+    } catch (error) {
+      console.error('Error fetching commands:', error);
+      Alert.alert('Error', 'Failed to fetch voice commands.');
+    }
   };
+  
+
   return (
-    <View style={styles.container}>
-      <Header title="Add Voice Command" />
-      <Text style={styles.label}>Emergency Contact</Text>
-      <TouchableOpacity
-        onPress={() => setDropDownOpen(val => !val)}
-        style={styles.dropDown}>
-        <Text style={styles.emergencyContactSelected}>
-          {selectedEmergencyContact.name
-            ? selectedEmergencyContact.name
-            : DEFAULT_VALUE}
+    <ScrollView style={{ flex: 1 }}>
+    <Header title="Voice Command" />
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 18, marginBottom: 10, color: 'black' }}>Tap to record a trigger phrase:</Text>
+
+      {!isRecording ? (
+        <Button title="Start Recording" onPress={startRecording} />
+      ) : (
+        <Button title="Stop Recording" color="red" onPress={stopRecording} />
+      )}
+
+      <View style={{ marginTop: 30 }}>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
+          Saved Voice Commands:
         </Text>
-      </TouchableOpacity>
-      {isDropDownOpen
-        ? emergencyContacts?.map(item => (
-            <TouchableOpacity
-              key={item._id}
-              onPress={() => {
-                setSelectedEmergencyContact(item);
-                setDropDownOpen(false);
-              }}
-              style={{
-                borderWidth: 1,
-                borderColor: '#d3d3d3',
-                padding: 12,
-                borderRadius: 5,
-                marginHorizontal: 10,
-                marginBottom: 1,
-                backgroundColor: item.voiceCommandText !== '' ? 'green' : 'red',
-              }}>
-              <Text style={styles.emergencyContactText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))
-        : null}
-      {selectedEmergencyContact.name !== DEFAULT_VALUE ? (
-        <>
-          <Text style={styles.voiceCommandHeader}>
-            {selectedEmergencyContact.voiceCommandText === ''
-              ? `Add a voice command for ${selectedEmergencyContact.name}`
-              : `Update the voice command for ${selectedEmergencyContact.name}`}
+        {commands.length > 0 ? (
+          commands.map((cmd: any) => (
+            <Text key={cmd._id} style={{ color: 'black' }}>
+            • {cmd.text}
           </Text>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => {
-                isListening ? stopListening : startListening();
-              }}>
-              <Image
-                source={isListening ? VOICE_ON : VOICE_OFF}
-                style={{width: 50, height: 50}}
-              />
-            </TouchableOpacity>
-            <Text style={styles.speakText}>
-              {isListening ? 'Listening...' : 'Click button to start recording'}
-            </Text>
-            <Text>{recognizedText}</Text>
-          </View>
-          {recognizedText !== '' ? (
-            <>
-              <Text style={styles.commandCorrectText}>
-                Is this correct command?
-              </Text>
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  onPress={onSaveVoiceNotePressed}
-                  style={styles.verifyButton}>
-                  <Text style={styles.buttonText}>Yes, Save it</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={startListening}
-                  style={styles.deleteButton}>
-                  <Text style={styles.buttonText}>No, Record Again</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : null}
-        </>
-      ) : null}
-
-      <AddCommandPopup
-        modalVisible={showPopup}
-        recognizedText={recognizedText}
-        startListening={() => startListening()}
-        stopListening={() => stopListening()}
-        onClosePressed={() => setShowPopup(false)}
-        onSuccess={() => {}}
-        isListening={isListening}
-      />
-    </View>
+          ))
+        ) : (
+          <Text>No voice commands found.</Text>
+        )}
+      </View>
+      </View>
+    </ScrollView>
   );
 };
 
