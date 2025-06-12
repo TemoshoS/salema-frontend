@@ -1,10 +1,21 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Header from '../../components/Header';
+import FormTextInput from '../../components/FormTextInput';
+import CommonButton from '../../components/CommonButton';
 import axiosInstance from '../../utils/axiosInstance';
-import styles from './styles'; 
+import styles from './styles';
 
-const SetNewPassword = ({route}: any) => {
+const SetNewPassword = ({ route }: any) => {
   const navigation = useNavigation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,7 +27,8 @@ const SetNewPassword = ({route}: any) => {
       return;
     }
     try {
-      await axiosInstance.post('/user/v1/set-new-password', {
+      await axiosInstance.post('/user/v1/reset-with-token', {
+        email,
         token,
         newPassword: password,
       });
@@ -28,27 +40,33 @@ const SetNewPassword = ({route}: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>New Password</Text>
-      <TextInput
-        style={styles.input}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Enter new password"
-      />
-      <Text style={styles.label}>Confirm Password</Text>
-      <TextInput
-        style={styles.input}
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        placeholder="Confirm new password"
-      />
-      <TouchableOpacity style={styles.button} onPress={handleSetPassword}>
-        <Text style={styles.buttonText}>Set Password</Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={{ flex: 1 }}>
+        <Header title="Set New Password" />
+        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
+          <FormTextInput
+            label="New Password"
+            value={password}
+            isPassword
+            onTextChanged={setPassword}
+            placeholder="Enter new password"
+          />
+          <FormTextInput
+            label="Confirm Password"
+            value={confirmPassword}
+            isPassword
+            onTextChanged={setConfirmPassword}
+            placeholder="Confirm new password"
+          />
+          <View style={{ marginTop: 20 }}>
+            <CommonButton text="Set Password" onPress={handleSetPassword} />
+          </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
