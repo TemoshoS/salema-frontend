@@ -1,13 +1,13 @@
+import { store } from '../redux/store';
 import { Alert } from 'react-native';
 import Shake from 'react-native-shake';
 import { getCurrentLocation, requestLocationPermission } from './location';
 import { sendSms } from './sms';
-import { getSecurityCompanyPhones } from './securityCompanies';
 
 let cachedContacts: { phone: string; name: string }[] = [];
 
 const sendEmergencySms = async (userName: string) => {
-  const securityPhones = await getSecurityCompanyPhones();
+  const securityPhones = store.getState().securityCompany.phones.map(p => p.phone);
 
   if (cachedContacts.length === 0 && securityPhones.length === 0) {
     Alert.alert('No emergency contacts or security companies set.');

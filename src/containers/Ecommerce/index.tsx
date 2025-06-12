@@ -1,21 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Header from '../../components/Header';
-import { styles } from './styles';
+import { Button, View } from 'react-native';
+import { useSelector, TypedUseSelectorHook } from 'react-redux';
+import { RootState } from '../../redux/store'; // adjust path to your store
+import { triggerEmergencySms } from '../../utils/emergency';
 
+// Create a typed selector hook
+const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-const Ecommerce = () => {
+export default function PanicTest() {
+  const userName = useTypedSelector(state => state.auth.userDetails?.name || 'Unknown User');
+
   return (
-    <View style={styles.container}>
-      <Header title="E-commerce" />
-      <View style={styles.content}>
-        <Text style={styles.text}>🚧 This feature is still under development.</Text>
-      </View>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Button
+        title="Trigger Panic SMS"
+        onPress={() => triggerEmergencySms(userName)}
+      />
     </View>
   );
-};
-
-export default Ecommerce;
-
-
-
+}

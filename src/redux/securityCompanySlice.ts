@@ -36,6 +36,7 @@ interface DataState {
   deleteId: string | null;
   isVerified: boolean;
   isDeclined: boolean;
+  phones: { companyName: string; phone: string }[];
 }
 
 // Initial state
@@ -47,8 +48,22 @@ const initialState: DataState = {
   deleteId: null,
   isVerified: false,
   isDeclined: false,
+  phones: [],
 };
 
+export const fetchSecurityCompanyPhones = createAsyncThunk(
+  'securityCompany/fetchPhones',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('/security-company/v1/phones');
+      return response.data.phones; // Assuming the backend response has { phones: [...] }
+    } catch (error: any) {
+      console.log('fetchPhones error:', error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+//
 export const fetchAdminSecurityCompanies = createAsyncThunk(
   'securityCompany/fetchAdminSecurityCompanies',
   async () => {
@@ -160,6 +175,12 @@ const securityCompanySlice = createSlice({
     },
   },
   extraReducers: builder => {
+
+    builder.addCase(fetchSecurityCompanyPhones.fulfilled, (state, action) => {
+      state.phones = action.payload;
+      state.loading = false;
+    });
+
     builder.addCase(fetchAdminSecurityCompanies.fulfilled, (state, action) => {
       console.log('fetchAdminSecurityCompanies', action.payload);
       state.loading = false;
@@ -203,6 +224,10 @@ const securityCompanySlice = createSlice({
       state.loading = false;
       state.error = action.payload as ErrorProps;
     });
+
+    
+    
+    
   },
 });
 export const {updateCompanyList, updateVerifyStatus, updateDeclineStatus} =

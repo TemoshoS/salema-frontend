@@ -2,6 +2,7 @@ import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import Shake from 'react-native-shake';
 import Geolocation from '@react-native-community/geolocation';
 import { store } from '../redux/store';
+import axiosInstance from '../utils/axiosInstance';
 
 let cachedContacts: { phone: string; name: string }[] = [];
 type SecurityCompany = {
@@ -22,22 +23,23 @@ const sendSms = async (phoneNumber: string, message: string) => {
   }
 
   try {
-    const response = await fetch('https://salema-backend1.onrender.com/send-sms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: phoneNumber.trim(), message }),
+    const response = await axiosInstance.post('/send-sms', {
+      to: phoneNumber.trim(),
+      message,
     });
 
-    const data = await response.json();
+    const data = response.data;
+
     if (data.success) {
       console.log(`✅ SMS sent to ${phoneNumber}`);
     } else {
       console.log(`❌ Failed to send SMS to ${phoneNumber}:`, data.error);
     }
-  } catch (error) {
-    console.error(`❌ Error sending SMS to ${phoneNumber}:`, error);
+  } catch (error: any) {
+    console.error(`❌ Error sending SMS to ${phoneNumber}:`, error.message || error);
   }
 };
+
 
 // Get current location
 const getCurrentLocation = (): Promise<{ latitude: number; longitude: number } | null> => {
@@ -82,14 +84,13 @@ const getSecurityCompanyPhones = async (): Promise<string[]> => {
     const { auth } = store.getState();
     const token = auth?.accessToken;
 
-    const response = await fetch('https://salema-backend1.onrender.com/security-company/v1/phones', {
+    const response = await axiosInstance.get<ApiResponse>('/security-company/v1/phones', {
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const data: ApiResponse = await response.json();
+    const data = response.data;
 
     console.log('📡 Security companies response:', JSON.stringify(data));
 
@@ -105,6 +106,7 @@ const getSecurityCompanyPhones = async (): Promise<string[]> => {
     return [];
   }
 };
+
 
 
 
