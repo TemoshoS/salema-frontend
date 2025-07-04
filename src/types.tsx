@@ -33,6 +33,7 @@ export type RootStackParamList = {
   RequestDetails: RequestType;
   OfficerList: undefined;
   AddOfficer: undefined;
+  CreateDangerZones: undefined;
   DangerZoneList: undefined;
   VoiceCommand: undefined;
   SecurityCompanyRegister: undefined;

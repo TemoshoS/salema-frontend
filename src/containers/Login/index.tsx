@@ -33,9 +33,19 @@ export default function Login() {
 
   useEffect(() => {
     if (error) {
+      if (error.status === 403) {
+        Alert.alert('Not Verified', error.message);
+      } else if (error.status === 404) {
+        Alert.alert('Login Failed', 'Account not found.');
+      } else {
+        Alert.alert('Login Failed', error.message || 'Something went wrong.');
+      }
+  
       dispatch(resetPage());
     }
   }, [error]);
+  
+  
 
   const onLoginPressed = () => {
     if (!email || !password) {
@@ -91,16 +101,9 @@ export default function Login() {
             isPassword
             onTextChanged={(text: string) => setPassword(text)}
           />
-          <View style={{marginTop: 20}}>
-            {loading ? (
-              <>
-                <ActivityIndicator size="large" color="green" />
-                <Text style={{textAlign: 'center', marginTop: 10}}>Logging in...</Text>
-              </>
-            ) : (
+          
               <CommonButton needTopSpace text="LOG IN" onPress={onLoginPressed} />
-            )}
-          </View>
+           
 
           <View style={styles.footer}>
             <TouchableOpacity onPress={onForgotPassword}>

@@ -184,10 +184,9 @@ const securityCompanySlice = createSlice({
     builder.addCase(fetchAdminSecurityCompanies.fulfilled, (state, action) => {
       console.log('fetchAdminSecurityCompanies', action.payload);
       state.loading = false;
-      state.items = action.payload.companies.filter(
-        item => item.verificationStatus === 'verified',
-      );
+      state.items = action.payload.companies;
     });
+    
     builder.addCase(deleteSecurityCompany.fulfilled, (state, action) => {
       console.log('deleteSecurityCompany', action.payload);
       state.loading = false;

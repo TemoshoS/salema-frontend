@@ -1,21 +1,59 @@
-import React from 'react';
-import { Button, View } from 'react-native';
-import { useSelector, TypedUseSelectorHook } from 'react-redux';
-import { RootState } from '../../redux/store'; // adjust path to your store
-import { triggerEmergencySms } from '../../utils/emergency';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
-// Create a typed selector hook
-const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+const fakeSubscriptions = [
+  {
+    productId: 'basic_plan',
+    title: 'Basic Plan',
+    description: 'Access limited features',
+    price: 'R29.99 / month',
+  },
+  {
+    productId: 'premium_plan',
+    title: 'Premium Plan',
+    description: 'Access all features with priority support',
+    price: 'R59.99 / month',
+  },
+];
 
-export default function PanicTest() {
-  const userName = useTypedSelector(state => state.auth.userDetails?.name || 'Unknown User');
+const SubscriptionScreen = () => {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  const handleSubscribe = (planId: string) => {
+    setSelectedPlan(planId);
+    Alert.alert('Subscription', `You selected: ${planId}`);
+    // You can save this to localStorage/AsyncStorage or backend
+  };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button
-        title="Trigger Panic SMS"
-        onPress={() => triggerEmergencySms(userName)}
-      />
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>
+        Choose a Subscription
+      </Text>
+
+      {fakeSubscriptions.map((plan) => (
+        <View key={plan.productId} style={{ marginBottom: 20 }}>
+          <Text style={{ fontSize: 18 }}>{plan.title}</Text>
+          <Text>{plan.description}</Text>
+          <Text style={{ fontWeight: 'bold' }}>{plan.price}</Text>
+          <TouchableOpacity
+            onPress={() => handleSubscribe(plan.productId)}
+            style={{
+              backgroundColor:
+                selectedPlan === plan.productId ? '#198754' : '#20C997',
+              padding: 10,
+              marginTop: 10,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: 'white', textAlign: 'center' }}>
+              {selectedPlan === plan.productId ? 'Selected' : 'Subscribe'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ))}
     </View>
   );
-}
+};
+
+export default SubscriptionScreen;

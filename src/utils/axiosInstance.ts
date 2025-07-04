@@ -1,8 +1,9 @@
 import axios from 'axios';
 import {store} from '../redux/store';
 
-const baseURL = 'http://10.0.2.2:3000';
-//const baseURL = 'http://192.168.137.52:3000';
+//const baseURL = 'http://10.0.2.2:3000';
+const baseURL = 'http://172.20.10.7:3000';
+
 //const baseURL = 'https://salema-backend1.onrender.com'; 
 
 const axiosInstance = axios.create({

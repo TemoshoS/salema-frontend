@@ -3,58 +3,69 @@ import {ROBOTO, ROBOTO_BOLD} from '../../constants/fonts';
 import {BLACK, WHITE} from '../../constants/colors';
 
 export default StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
   headerText: {
-    marginStart: 10,
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: ROBOTO_BOLD,
     color: BLACK,
+    width: '40%',
   },
   text: {
-    marginRight: 40,
     fontSize: 16,
     fontFamily: ROBOTO,
     color: BLACK,
-    width: '50%',
+    width: '60%',
   },
-  row: {flexDirection: 'row', alignItems: 'center', marginBottom: 10},
+
   buttonRow: {
     flexDirection: 'row',
-    paddingRight: 20,
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 10,
   },
+
   verifyButton: {
-    width: '50%',
-    backgroundColor: 'blue',
-    padding: 10,
+    flex: 1,
+    backgroundColor: '#20C997', // Teal green
+    padding: 12,
     margin: 5,
-    borderRadius: 10,
+    borderRadius: 12,
+    elevation: 2,
   },
+  declineButton: {
+    flex: 1,
+    backgroundColor: '#E74C3C', // Soft red
+    padding: 12,
+    margin: 5,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  deleteButton: {
+    backgroundColor: '#E74C3C',
+    padding: 12,
+    margin: 10,
+    borderRadius: 12,
+    elevation: 2,
+    marginHorizontal: 16,
+  },
+  deactivateButton: {
+    backgroundColor: '#F39C12',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 5,
+    borderRadius: 12,
+    elevation: 2,
+  },
+
   buttonText: {
     textAlign: 'center',
     color: WHITE,
-    fontFamily: ROBOTO,
-    fontSize: 18,
-  },
-  declineButton: {
-    width: '50%',
-    backgroundColor: 'red',
-    padding: 10,
-    margin: 5,
-    borderRadius: 10,
-  },
-  deleteButton: {
-    width: '100%',
-    backgroundColor: 'red',
-    padding: 10,
-    margin: 5,
-    borderRadius: 10,
-  },
-
-  deactivateButton: {
-    width: '98%',
-    backgroundColor: 'red',
-    padding: 10,
-    margin: 5,
-    borderRadius: 10,
+    fontFamily: ROBOTO_BOLD,
+    fontSize: 16,
   },
 });

@@ -90,7 +90,7 @@ const CompanyDetails: React.FC<NavigationProps> = ({route}) => {
   return (
     <View>
       <Header title="Company Details" />
-      <View style={{marginTop: 10}}>
+      <View style={{marginTop: 10, backgroundColor: 'white', margin: 16, padding: 16, borderRadius: 12, elevation: 3}}>
         <View style={styles.row}>
           <Text style={styles.headerText}>Company Name : </Text>
           <Text style={styles.text}>{companyName}</Text>

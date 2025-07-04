@@ -1,4 +1,4 @@
-package mobile.salema.app
+package com.maduane.salema
 
 import android.app.Application
 import com.facebook.react.PackageList

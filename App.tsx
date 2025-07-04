@@ -13,6 +13,8 @@ import {
   StatusBar,
   useColorScheme,
   PermissionsAndroid,
+  
+  
 } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -32,10 +34,12 @@ import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
 import { setupShakeListener } from './src/utils/shake';
 import AutoVoiceListener from './src/containers/AutoListener';
 
+const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 const RootNavigator = () => {
   const { isLoggedIn, userDetails } = useAppSelector(state => state.auth);
   const { emergencyContacts } = useAppSelector(state => state.emergencyContacts);
   const role = userDetails?.role;
+  
 
   useEffect(() => {
     if (
@@ -112,11 +116,12 @@ function App(): React.JSX.Element {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <SafeAreaView style={{ flex: 1 }}>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
-          />
+      <SafeAreaView style={{ flex: 1, paddingTop: STATUSBAR_HEIGHT }}>
+  <StatusBar
+    translucent
+    backgroundColor="transparent"
+    barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+  />
           <RootNavigator />
           <BackgroundLocationTracker />
         </SafeAreaView>

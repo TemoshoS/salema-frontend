@@ -10,6 +10,7 @@ import RequestDetails from '../containers/RequestDetails';
 import SideModalNavigation from '../components/SideModalNavigation';
 import ClientDetails from '../containers/ClientDetails';
 import DangerZoneList from '../containers/DangerZoneList';
+import CreateDangerZone from '../containers/CreateDangerZone';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,6 +30,8 @@ export function AdminStack() {
         <Stack.Screen name="RequestList" component={RequestList} />
         <Stack.Screen name="RequestDetails" component={RequestDetails} />
         <Stack.Screen name="DangerZoneList" component={DangerZoneList} />
+        <Stack.Screen name="CreateDangerZones" component={CreateDangerZone}/>
+
       </Stack.Navigator>
       <SideModalNavigation />
     </NavigationContainer>

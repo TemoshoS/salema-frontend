@@ -86,14 +86,17 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "mobile.salema.app"
+    namespace "com.maduane.salema"
     defaultConfig {
-        applicationId "mobile.salema.app"
+        applicationId "com.maduane.salema"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "0.0.6"
+        versionCode 1
+        versionName "0.0.1"
     }
+
+    flavorDimensions "store"
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -125,6 +128,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+   // implementation project(':react-native-iap')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

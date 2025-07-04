@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Linking, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -12,6 +12,8 @@ import { getvoiceCommands } from '../../redux/voiceNoteSlice';
 import RNShake from 'react-native-shake';
 import Header from '../../components/Header';
 import { triggerShakeManually } from '../../utils/shake';
+import WelcomeHome from '../../components/WelcomeHome';
+import { MAIN_ICON, INACTIVEICON, NO, UNDRAW } from '../../constants/assets';
 
 type RequestListNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -25,13 +27,10 @@ export default function RequestList() {
   const serviceRequestArr = useAppSelector(state => state.serviceRequest.items);
   const role = useAppSelector(state => state.auth.userDetails?.role);
 
-  // Get userDetails from Redux and log it for debugging
   const userDetails = useAppSelector(state => state.auth.userDetails);
-  
-
-
-  // Use userDetails.name if available, else fallback to 'user'
   const userName = userDetails?.userName ?? 'user';
+
+  const [currentIcon, setCurrentIcon] = useState(INACTIVEICON);
 
   useFocusEffect(
     useCallback(() => {
@@ -47,94 +46,56 @@ export default function RequestList() {
 
   useEffect(() => {
     const subscription = RNShake.addListener(() => {
-      // Pass userName when calling
       triggerShakeManually(userName);
       Alert.alert(
         'Emergency Alert',
         'Your emergency contacts have been notified.',
       );
+      changeIconTemporary();
     });
 
     return () => {
       subscription.remove();
     };
-  }, [ userName]);
+  }, [userName]);
 
-  const renderItem = ({ item }: { item: RequestType }) => (
-    <TouchableOpacity
-      onPress={() => {
-        if (
-          role === RoleStrings.MG ||
-          role === RoleStrings.SO ||
-          role === RoleStrings.AD
-        ) {
-          navigation.navigate('RequestDetails', item);
-        }
-      }}
-      style={styles.cardView}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={styles.requestText}>Request #{item?.requestNumber}</Text>
-        <Text style={styles.statusText}>{item?.requestStatus}</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => {
-          const lat = item?.location?.coordinates?.latitude;
-          const lon = item?.location?.coordinates?.longitude;
-          const url = `https://www.google.com/maps?q=${lat},${lon}`;
-          if (lat && lon) {
-            Linking.openURL(url);
-          } else {
-            Alert.alert('Invalid location');
-          }
-        }}>
-        <Text
-          style={[
-            styles.locationText,
-            { color: 'blue', textDecorationLine: 'underline' },
-          ]}>
-          View Location
-        </Text>
-      </TouchableOpacity>
-      <Text style={styles.servicesText}>
-        Services {item?.requestedServices?.join(', ')}
-      </Text>
-    </TouchableOpacity>
-  );
+  const changeIconTemporary = () => {
+    setCurrentIcon(MAIN_ICON);
+    setTimeout(() => {
+      setCurrentIcon(INACTIVEICON);
+    }, 3000);
+  };
 
   return (
     <View style={{ flex: 1 }}>
       <Header title="Requests" showBackButton={false} />
-      {serviceRequestArr.length !== 0 ? (
-        <FlatList
-          data={serviceRequestArr}
-          renderItem={renderItem}
-          style={{ height: '100%', marginBottom: 20 }}
-          keyExtractor={item => item._id} // Adds spacing between rows
-        />
-      ) : (
-        <EmptyContainer title="No Requests" />
-      )}
+      <WelcomeHome mainIcon={currentIcon} />
 
-      {/* Floating panic button */}
-      <TouchableOpacity
-        onPress={() => triggerShakeManually(userName)} // Pass userName here
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          alignSelf: 'center',
-          backgroundColor: 'crimson',
-          paddingVertical: 10,
-          paddingHorizontal: 16,
-          borderRadius: 10,
-          elevation: 5, // Android shadow
-          shadowColor: '#000', // iOS shadow
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
-          shadowOffset: { width: 0, height: 2 },
-        }}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Panic Button</Text>
-      </TouchableOpacity>
+      {/* Show panic button only if role is general user */}
+      {role === RoleStrings.GU && (
+        <TouchableOpacity
+          onPress={() => {
+            triggerShakeManually(userName);
+            changeIconTemporary();
+          }}
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            alignSelf: 'center',
+            backgroundColor: 'crimson',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            borderRadius: 10,
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            shadowOffset: { width: 0, height: 2 },
+          }}
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Panic Button</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
-

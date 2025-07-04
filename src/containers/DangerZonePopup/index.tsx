@@ -8,7 +8,7 @@ interface DangerZoneProps {
   onDismiss?: () => void; // Optional callback to close the alert
 }
 
-// Main AlertBanner component
+// Main AlertBanner componentc
 const DangerZonePopup: React.FC<DangerZoneProps> = ({
   message,
   severity,

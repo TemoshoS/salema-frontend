@@ -240,16 +240,7 @@ const authSlice = createSlice({
       .addCase(securityCompanyRegister.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
-        state.isLoggedIn = true;
-        state.accessToken = action.payload.access_token;
-        Alert.alert('', 'User Registered Successfully');
-        state.userDetails = {
-          role: RoleStrings.MG,
-          name: 'Sample',
-          surname: 'Surname',
-          email: 'email@email.com',
-          address: 'saddress',
-        };
+        Alert.alert('', 'Security Company Registered. Please wait for admin approval.');
       })
       .addCase(registerDevice.fulfilled, (state, action) => {
         console.log('registerDevice action', action.payload);

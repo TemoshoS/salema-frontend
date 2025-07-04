@@ -1,4 +1,4 @@
-package mobile.salema.app
+package com.maduane.salema
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

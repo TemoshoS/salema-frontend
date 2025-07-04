@@ -24,6 +24,10 @@ export const getNavigationOptions = (
       title: 'Danger Zones',
       onPress: () => navigation.navigate('DangerZoneList'),
     },
+    {
+      title: 'Create Danger Zones',
+      onPress: () => navigation.navigate('CreateDangerZones')
+    }
   ];
 
   const securityCompanyNavigationOptions: NavigationOption[] = [
@@ -36,7 +40,7 @@ export const getNavigationOptions = (
   ];
 
   const clientNavigationOptions: NavigationOption[] = [
-    {title: 'Home', onPress: () => navigation.navigate('Home')},
+   
     {title: 'Profile', onPress: () => navigation.navigate('Profile')},
     {title: 'Chat With Us', onPress: () => navigation.navigate('ChatBot')},
     {
@@ -56,7 +60,7 @@ export const getNavigationOptions = (
       onPress: () => navigation.navigate('EmergencyContacts'),
     },
     {
-      title: 'E-commerce',
+      title: 'Subscription',
       onPress: () => navigation.navigate('Ecommerce'),
     },
     {
