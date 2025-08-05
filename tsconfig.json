@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "jsx": "react"
+    "jsx": "react-native",
+    "types": ["react", "react-native", "jest"],
+    "skipLibCheck": true
   },
   "extends": "@react-native/typescript-config/tsconfig.json",
   "include": ["**/*.ts", "**/*.tsx", "env.d.ts"]

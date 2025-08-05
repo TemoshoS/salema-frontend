@@ -1,5 +1,6 @@
 import { PermissionsAndroid, Platform } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
+
 
 export const requestLocationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {

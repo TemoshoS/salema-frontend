@@ -18,6 +18,7 @@ import CallEmergencyService from '../containers/CallEmergencyService';
 import Ecommerce from '../containers/Ecommerce';
 import SelectSecurityCompany from '../containers/SelectSecurityCompany';
 import ChatBot from '../containers/ChatBot';
+import RideAlong from '../containers/RideAlong/RideAlong';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -32,6 +33,7 @@ const AppNavigation = () => {
         screenOptions={{headerShown: false}}
         initialRouteName="RequestList">
         <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="RideAlong" component={RideAlong} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="ChatBot" component={ChatBot}/>
         <Stack.Screen name="CreateRequest" component={CreateRequest} />

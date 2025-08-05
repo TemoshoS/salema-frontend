@@ -6,6 +6,7 @@ interface locationProp {
 export type RootStackParamList = {
   AuthHome: undefined;
   Home: undefined;
+  RideAlong: undefined;
   Login: undefined;
   Register: undefined;
   Profile: undefined;

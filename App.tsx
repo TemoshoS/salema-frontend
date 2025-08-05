@@ -28,7 +28,7 @@ import AppNavigation from './src/navigation/AppNavigation';
 import { AdminStack } from './src/navigation/AdminNavigation';
 import { SecurityCompanyStack } from './src/navigation/SecurityCompanyStack';
 import { SecurityOfficerNavigation } from './src/navigation/SecurityOfficerNavigation';
-
+import { setupFCM, setupForegroundHandler, checkInitialNotification } from './src/utils/notification'
 import { RoleStrings } from './src/constants/constants';
 import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
 import { setupShakeListener } from './src/utils/shake';

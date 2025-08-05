@@ -1,59 +1,166 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
+import axiosInstance from '../../utils/axiosInstance'; // your configured axios instance
 
-const fakeSubscriptions = [
-  {
-    productId: 'basic_plan',
-    title: 'Basic Plan',
-    description: 'Access limited features',
-    price: 'R29.99 / month',
-  },
-  {
-    productId: 'premium_plan',
-    title: 'Premium Plan',
-    description: 'Access all features with priority support',
-    price: 'R59.99 / month',
-  },
-];
+const DangerZoneAlert: React.FC = () => {
+  const [isNearDanger, setIsNearDanger] = useState<boolean | null>(null);
+  const [dangerZoneName, setDangerZoneName] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [locationInterval, setLocationInterval] = useState<NodeJS.Timeout | null>(null);
 
-const SubscriptionScreen = () => {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
-  const handleSubscribe = (planId: string) => {
-    setSelectedPlan(planId);
-    Alert.alert('Subscription', `You selected: ${planId}`);
-    // You can save this to localStorage/AsyncStorage or backend
+  // Request location permission (Android)
+  const checkLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'We need your location to warn about danger zones nearby.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    } else {
+      // iOS: Handle permission differently if needed
+      return true; // Assuming permission is granted
+    }
   };
 
-  return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>
-        Choose a Subscription
-      </Text>
+  // Call backend to check if user is near a danger zone
+  const checkDangerZone = async (latitude: number, longitude: number) => {
+    try {
+      const res = await axiosInstance.post('/danger-zone/v1/check', {
+        location: { latitude, longitude },
+      });
 
-      {fakeSubscriptions.map((plan) => (
-        <View key={plan.productId} style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 18 }}>{plan.title}</Text>
-          <Text>{plan.description}</Text>
-          <Text style={{ fontWeight: 'bold' }}>{plan.price}</Text>
-          <TouchableOpacity
-            onPress={() => handleSubscribe(plan.productId)}
-            style={{
-              backgroundColor:
-                selectedPlan === plan.productId ? '#198754' : '#20C997',
-              padding: 10,
-              marginTop: 10,
-              borderRadius: 8,
-            }}
-          >
-            <Text style={{ color: 'white', textAlign: 'center' }}>
-              {selectedPlan === plan.productId ? 'Selected' : 'Subscribe'}
-            </Text>
-          </TouchableOpacity>
+      if (res.data.status === 'OK' && res.data.message.includes('within')) {
+        // Extract zone name from message or use zone property if available
+        const zoneName = res.data.zone?.name
+          ? res.data.zone.name
+          : res.data.message.split('-')[1]?.trim() || 'Unknown Danger Zone';
+
+        setIsNearDanger(true);
+        setDangerZoneName(zoneName);
+      } else {
+        setIsNearDanger(false);
+        setDangerZoneName('');
+      }
+    } catch (error) {
+      console.error('Error checking danger zone:', error);
+      setIsNearDanger(null);
+      setDangerZoneName('');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Start location updates on interval
+  const startLocationTracking = () => {
+    const interval = setInterval(() => {
+      Geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          checkDangerZone(latitude, longitude);
+        },
+        (error) => {
+          console.error('Location error:', error);
+          setLoading(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+    }, 30000); // every 30 seconds
+
+    setLocationInterval(interval);
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      const permissionGranted = await checkLocationPermission();
+      if (permissionGranted) {
+        startLocationTracking();
+      } else {
+        Alert.alert(
+          'Permission Denied',
+          'Location permission is required to check for danger zones.'
+        );
+        setLoading(false);
+      }
+    };
+
+    init();
+
+    return () => {
+      if (locationInterval) {
+        clearInterval(locationInterval);
+      }
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+        <Text>Checking your location...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {isNearDanger ? (
+        <View style={styles.dangerAlert}>
+          <Text style={styles.dangerText}>⚠️ Warning!</Text>
+          <Text style={styles.dangerText}>You are near: {dangerZoneName}</Text>
+          <Text style={styles.dangerText}>Please proceed with caution.</Text>
         </View>
-      ))}
+      ) : (
+        <Text style={styles.safeText}>✅ You are not near any danger zones.</Text>
+      )}
     </View>
   );
 };
 
-export default SubscriptionScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  dangerAlert: {
+    backgroundColor: '#ffebee',
+    borderColor: '#ef9a9a',
+    borderWidth: 1,
+    padding: 20,
+    borderRadius: 10,
+  },
+  dangerText: {
+    color: '#c62828',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  safeText: {
+    color: '#2e7d32',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+});
+
+export default DangerZoneAlert;

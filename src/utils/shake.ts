@@ -1,6 +1,7 @@
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import Shake from 'react-native-shake';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
+
 import { store } from '../redux/store';
 import axiosInstance from '../utils/axiosInstance';
 
