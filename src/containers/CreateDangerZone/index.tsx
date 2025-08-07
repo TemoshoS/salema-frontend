@@ -97,7 +97,7 @@ const CreateDangerZone: React.FC = () => {
         type: 'Circle',
         center: {
           type: 'Point',
-          coordinates: [location.longitude, location.latitude],
+          coordinates: [location.latitude, location.longitude],
         },
         radius: 5000,
       };

@@ -21,6 +21,8 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../../types';
 import axiosInstance from '../../utils/axiosInstance'; 
+import messaging from '@react-native-firebase/messaging';
+import {registerDevice} from '../../redux/authSlice';
 
 export default function Login() {
   const [email, setEmail] = useState('admin@mail.com');
@@ -47,18 +49,44 @@ export default function Login() {
   
   
 
-  const onLoginPressed = () => {
+  const onLoginPressed = async () => {
     if (!email || !password) {
       Alert.alert('Validation Error', 'Please fill in both email and password.');
       return;
     }
-
+  
     if (!validateEmail(email)) {
       Alert.alert('Validation Error', 'Please enter a valid email address.');
       return;
     }
-
-    dispatch(login({email, password}));
+  
+    try {
+      // Step 1: Dispatch login and wait for result
+      const resultAction = await dispatch(login({email, password}));
+  
+      if (login.fulfilled.match(resultAction)) {
+        // Step 2: Get the access token
+        const accessToken = resultAction.payload?.access_token;
+  
+        // Step 3: Get the FCM token from Firebase
+        const fcmToken = await messaging().getToken();
+  
+        // Step 4: Register the device with backend
+        if (fcmToken && accessToken) {
+          await dispatch(
+            registerDevice({
+              fcmToken,
+              configuration: `Bearer ${accessToken}`,
+            }),
+          );
+        }
+      } else if (login.rejected.match(resultAction)) {
+        // This will be handled by useEffect, so no need to do anything here.
+      }
+    } catch (error) {
+      console.error('Login or FCM setup error:', error);
+      Alert.alert('Error', 'Something went wrong during login.');
+    }
   };
 
   const onForgotPassword = async () => {

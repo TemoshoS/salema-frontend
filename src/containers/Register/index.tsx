@@ -10,8 +10,9 @@ import FormTextInput from '../../components/FormTextInput';
 import Header from '../../components/Header';
 import CommonButton from '../../components/CommonButton';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {register, resetPage} from '../../redux/authSlice';
+import {register, resetPage, registerDevice} from '../../redux/authSlice';
 import {PLEASE_FILL_ALL_THE_FIELDS} from '../../constants/constants';
+import messaging from '@react-native-firebase/messaging';
 
 interface RegisterData {
   name: string;
@@ -37,7 +38,7 @@ export default function Register() {
   });
 
   const dispatch = useAppDispatch();
-  const {error} = useAppSelector(state => state.auth);
+  const {error, isLoggedIn, accessToken} = useAppSelector(state => state.auth);
 
   useEffect(() => {
     if (error) {
@@ -45,6 +46,26 @@ export default function Register() {
       dispatch(resetPage());
     }
   }, [error]);
+
+  useEffect(() => {
+    if (isLoggedIn && accessToken) {
+      registerFcmToken();
+    }
+  }, [isLoggedIn, accessToken]);
+
+  const registerFcmToken = async () => {
+    try {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        dispatch(registerDevice({
+          fcmToken,
+          configuration: `Bearer ${accessToken}`,
+        }));
+      }
+    } catch (error) {
+      console.error('FCM registration failed:', error);
+    }
+  };
 
   const onSignupPressed = () => {
     const {

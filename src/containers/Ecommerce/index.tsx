@@ -9,7 +9,10 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import axiosInstance from '../../utils/axiosInstance'; // your configured axios instance
+import axiosInstance from '../../utils/axiosInstance';
+import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
+
 
 const DangerZoneAlert: React.FC = () => {
   const [isNearDanger, setIsNearDanger] = useState<boolean | null>(null);
@@ -102,15 +105,28 @@ const DangerZoneAlert: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     init();
-
+  
+    // 🔔 Listen for foreground FCM messages
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      const { title, body } = remoteMessage.notification || {};
+  
+      PushNotification.localNotification({
+        channelId: 'danger-alerts',
+        title: title || 'Danger Zone Alert',
+        message: body || 'Someone has entered a danger zone.',
+      });
+    });
+  
     return () => {
       if (locationInterval) {
         clearInterval(locationInterval);
       }
+      unsubscribe(); // Clean up FCM listener
     };
   }, []);
+  
 
   if (loading) {
     return (

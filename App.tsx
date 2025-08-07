@@ -20,6 +20,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
 
 import { store, persistor, useAppSelector } from './src/redux/store';
 import { THEME_COLOR } from './src/constants/colors';
@@ -28,7 +29,7 @@ import AppNavigation from './src/navigation/AppNavigation';
 import { AdminStack } from './src/navigation/AdminNavigation';
 import { SecurityCompanyStack } from './src/navigation/SecurityCompanyStack';
 import { SecurityOfficerNavigation } from './src/navigation/SecurityOfficerNavigation';
-import { setupFCM, setupForegroundHandler, checkInitialNotification } from './src/utils/notification'
+
 import { RoleStrings } from './src/constants/constants';
 import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
 import { setupShakeListener } from './src/utils/shake';
@@ -39,6 +40,20 @@ const RootNavigator = () => {
   const { isLoggedIn, userDetails } = useAppSelector(state => state.auth);
   const { emergencyContacts } = useAppSelector(state => state.emergencyContacts);
   const role = userDetails?.role;
+  
+  useEffect(() => {
+    PushNotification.createChannel(
+      {
+        channelId: 'danger-alerts',
+        channelName: 'Danger Alerts',
+        importance: 4, // High importance
+        vibrate: true,
+        soundName: 'default',
+      },
+      (created: boolean) => console.log(`📣 Notification channel created: ${created}`)
+    );
+  }, []);
+  
   
 
   useEffect(() => {
@@ -105,7 +120,16 @@ function App(): React.JSX.Element {
     })();
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      const { title, body } = remoteMessage.notification || {};
+    
+      PushNotification.localNotification({
+        channelId: 'danger-alerts',
+        title: title || 'Danger Zone Alert',
+        message: body || 'Someone has entered a danger zone.',
+        playSound: true,
+        soundName: 'default',
+        importance: 'high',
+      });
     });
 
     return () => {
