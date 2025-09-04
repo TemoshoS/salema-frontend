@@ -20,6 +20,7 @@ import { getDistance } from 'geolib';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import axios from 'axios';
 import 'react-native-get-random-values';
+import Header from '../../components/Header';
 
 // Pulse component for the blue pulsing effect
 const Pulse = () => {
@@ -262,8 +263,13 @@ export default function RideAlong() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: '#f2f7fa' }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+    <Header title="Ride Along" />
+  </View>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        
         <View style={styles.container}>
+        
           {!loading ? (
             <>
               {/* Search Inputs */}
@@ -437,6 +443,7 @@ const autoCompleteStyles = {
     width: SEARCH_INPUT_WIDTH,
     alignSelf: 'center',
     zIndex: 999,
+    elevation: 10,
   },
   textInput: {
     height: 48,
@@ -447,13 +454,13 @@ const autoCompleteStyles = {
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 5,
     width: '100%',
   },
   listView: {
     backgroundColor: 'white',
     borderRadius: 12,
-    elevation: 5,
+    elevation: 10,
     zIndex: 999,
   },
 };

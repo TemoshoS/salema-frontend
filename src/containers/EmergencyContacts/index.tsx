@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Text, TouchableOpacity, View, FlatList} from 'react-native';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
-
 import Header from '../../components/Header';
 import styles from './styles';
 import {EmergencyContactsType} from '../../types';
-import {SwipeListView} from 'react-native-swipe-list-view';
 import EmptyContainer from '../../components/EmptyContainer';
 import {
   deleteEmergencyContacts,
@@ -13,8 +11,8 @@ import {
   updateEmergencyContactList,
 } from '../../redux/emergencyContactSlice';
 import AddEmergencyContactPopup from '../../components/AddEmergencyContactPopup';
-
-
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {THEME_COLOR} from '../../constants/colors';
 
 export default function EmergencyContacts() {
   const dispatch = useAppDispatch();
@@ -39,45 +37,36 @@ export default function EmergencyContacts() {
   }, [deleteId]);
 
   const handleDelete = (id: string) => {
-    dispatch(deleteEmergencyContacts(id));
+    Alert.alert(
+      'Delete',
+      'Are you sure you want to delete this contact?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Delete', onPress: () => dispatch(deleteEmergencyContacts(id)), style: 'destructive'},
+      ],
+    );
   };
 
-  const renderHiddenItem = ({item}: {item: EmergencyContactsType}) => (
-    <View style={styles.rowBack}>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => {
-          Alert.alert(
-            'Delete',
-            'Are you sure you want to delete this contact?',
-            [
-              {text: 'Cancel', style: 'cancel'},
-              {
-                text: 'Delete',
-                onPress: () => handleDelete(item._id),
-                style: 'destructive',
-              },
-            ],
-          );
-        }}>
+  const renderItem = ({item}: {item: EmergencyContactsType}) => (
+    <View style={styles.cardView}>
+      {/* Icon */}
+      <View style={styles.iconContainer}>
+        <Icon name="user" size={28} color={THEME_COLOR} />
+      </View>
+
+      {/* Info */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.header}>{item.name}</Text>
+        <Text style={styles.itemText}>{item.relationship}</Text>
+        <Text style={styles.requestText}>{item.phone}</Text>
+  
+      </View>
+
+      {/* Delete Button */}
+      <TouchableOpacity style={styles.deleteButtonCard} onPress={() => handleDelete(item._id)}>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
     </View>
-  );
-
-  const renderItem = ({item}: {item: EmergencyContactsType}) => (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={() => {}}
-      style={styles.cardView}>
-      <Text style={styles.header}>{item.name}</Text>
-      <Text style={styles.itemText}>{item.relationship}</Text>
-      <Text
-        style={
-          styles.itemText
-        }>{`Voice Command : ${item.voiceCommandText}`}</Text>
-      {/* <Text style={styles.requestText}>{item.contact}</Text> */}
-    </TouchableOpacity>
   );
 
   return (
@@ -87,29 +76,24 @@ export default function EmergencyContacts() {
       {emergencyContacts?.length === 0 || emergencyContacts === null ? (
         <EmptyContainer title="No Emergency Contacts" />
       ) : (
-        <SwipeListView
+        <FlatList
           data={emergencyContacts}
           keyExtractor={item => item._id}
           renderItem={renderItem}
-          renderHiddenItem={renderHiddenItem}
-          rightOpenValue={-75} // Width of the hidde     n delete button
-          disableRightSwipe // Only allow swipe to the left
+          contentContainerStyle={{paddingBottom: 100}}
         />
       )}
 
       <AddEmergencyContactPopup
         modalVisible={isPopupVisible}
-        onClosePressed={() => {
-          setPopupVisible(false);
-        }}
+        onClosePressed={() => setPopupVisible(false)}
         onSuccess={() => {
           setPopupVisible(false);
           dispatch(getEmergencyContacts());
         }}
       />
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => setPopupVisible(true)}>
+
+      <TouchableOpacity style={styles.floatingButton} onPress={() => setPopupVisible(true)}>
         <Text style={styles.floatingText}>+</Text>
       </TouchableOpacity>
     </View>

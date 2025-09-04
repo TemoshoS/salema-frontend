@@ -19,6 +19,8 @@ import Ecommerce from '../containers/Ecommerce';
 import SelectSecurityCompany from '../containers/SelectSecurityCompany';
 import ChatBot from '../containers/ChatBot';
 import RideAlong from '../containers/RideAlong/RideAlong';
+import MissingPersonDetailsScreen from '../containers/MissingPersonList/MissingPersonDetailsScreen';
+import MissingPersonsListScreen from '../containers/MissingPersonList/MissingPersonsListScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -41,6 +43,8 @@ const AppNavigation = () => {
         <Stack.Screen name="RequestList" component={RequestList} />
         <Stack.Screen name="VoiceCommand" component={VoiceCommand} />
         <Stack.Screen name="Ecommerce" component={Ecommerce} />
+        <Stack.Screen name="MissingPersons" component={MissingPersonsListScreen} options={{ title: 'Missing People' }} />
+        <Stack.Screen name="MissingPersonDetails" component={MissingPersonDetailsScreen} options={{ title: 'Details' }} />
         <Stack.Screen
           name="MissingPersonEntry"
           component={MissingPersonEntry}

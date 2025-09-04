@@ -69,7 +69,7 @@ const SideModalNavigation: React.FC = () => {
       />
 
       <Animated.View style={[styles.modalContent, {left: slideAnim}]}>
-        <Text style={styles.modalTitle}>Menu ({roles[role]})</Text>
+        <Text style={styles.modalTitle}>Menu {roles[role]}</Text>
 
         {navigationOptions.map((option, index) =>
           option.title == 'Active' ? (

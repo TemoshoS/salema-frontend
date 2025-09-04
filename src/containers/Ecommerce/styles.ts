@@ -3,9 +3,9 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f1f2',
-    justifyContent: 'space-between',
-    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   title: {
     fontSize: 22,
@@ -47,5 +47,24 @@ export const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+
+  dangerAlert: {
+    backgroundColor: '#ffebee',
+    borderColor: '#ef9a9a',
+    borderWidth: 1,
+    padding: 20,
+    borderRadius: 10,
+  },
+  dangerText: {
+    color: '#c62828',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  safeText: {
+    color: '#2e7d32',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });

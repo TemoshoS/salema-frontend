@@ -5,16 +5,23 @@ interface CommonButtonProps {
   text: string;
   onPress: () => void;
   needTopSpace?: boolean;
+  disabled?: boolean; 
 }
 const CommonButton: React.FC<CommonButtonProps> = ({
   onPress,
   needTopSpace,
   text,
+  disabled = false, 
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.button, needTopSpace ? {marginTop: 40} : '']}>
+      disabled={disabled}
+      style={[
+        styles.button,
+        needTopSpace ? { marginTop: 40 } : null,
+        disabled ? { opacity: 0.6 } : null,
+      ]}>
       <Text style={styles.buttonText}>{text}</Text>
     </TouchableOpacity>
   );

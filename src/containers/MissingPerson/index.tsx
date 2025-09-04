@@ -59,28 +59,36 @@ const MissingPersonEntry: React.FC = () => {
   };
 
   const handleSave = () => {
-    const {name, age, lastSeen, lastSeenDate, contactInfo, photo} = person;
-    if (name && age && lastSeen && contactInfo) {
-      const formData = new FormData();
-      formData.append('personName', name);
-      formData.append('age', parseInt(age));
-      formData.append('lastSeenDateTime', lastSeenDate.toISOString());
-      formData.append('lastSeenLocation', lastSeen);
-      formData.append('contact', contactInfo);
-
-      if (photo) {
-        formData.append('image', {
-          uri: photo.uri,
-          type: photo.type,
-          name: photo.fileName,
-        });
-      }
-
-      dispatch(addMissingPersons(formData));
-    } else {
-      Alert.alert('Error', 'Please fill all required fields');
+    const { name, age, lastSeen, lastSeenDate, contactInfo, photo } = person;
+  
+    // Require photo to match backend rule:
+    if (!photo) {
+      return Alert.alert('Photo required', 'Please add a clear, recent photo.');
     }
+  
+    if (!name || !age || !lastSeen || !contactInfo) {
+      return Alert.alert('Error', 'Please fill all required fields');
+    }
+  
+    const formData = new FormData();
+    formData.append('personName', name);
+    formData.append('age', String(parseInt(age, 10))); // ensure string
+    formData.append('lastSeenDateTime', lastSeenDate.toISOString());
+    formData.append('lastSeenLocation', lastSeen);
+    formData.append('contact', contactInfo);
+  
+    const imagePart = {
+      uri: photo.uri,
+      // Default to jpeg if missing/odd; server accepts jpeg/jpg/png
+      type: photo.type && /image\/(jpeg|jpg|png)/.test(photo.type) ? photo.type : 'image/jpeg',
+      name: photo.fileName?.match(/\.(jpe?g|png)$/i) ? photo.fileName : `photo_${Date.now()}.jpg`,
+    } as any;
+  
+    formData.append('image', imagePart);
+  
+    dispatch(addMissingPersons(formData));
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

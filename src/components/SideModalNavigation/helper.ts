@@ -44,14 +44,22 @@ export const getNavigationOptions = (
     {title: 'Profile', onPress: () => navigation.navigate('Profile')},
     {title: 'Chat With Us', onPress: () => navigation.navigate('ChatBot')},
     {title: 'Ride Along', onPress: () => navigation.navigate('RideAlong')},
-    {
+    /*{
       title: 'Create Request',
       onPress: () => navigation.navigate('SelectSecurityCompany'),
-    },
+    },*/
     {
       title: 'Add Missing Person',
       onPress: () => navigation.navigate('MissingPersonEntry'),
     },
+    {
+      title: 'Missing People',
+      onPress: () => navigation.navigate('MissingPersons'),
+    },
+    /*{
+      title: 'Missing People Details',
+      onPress: () => navigation.navigate('MissingPersonDetails'),
+    },*/
     {
       title: 'Add Voice Command',
       onPress: () => navigation.navigate('VoiceCommand'),
@@ -60,10 +68,10 @@ export const getNavigationOptions = (
       title: 'Emergency Contacts',
       onPress: () => navigation.navigate('EmergencyContacts'),
     },
-    {
+   /* {
       title: 'Subscription',
       onPress: () => navigation.navigate('Ecommerce'),
-    },
+    },*/
     {
       title: 'Support',
       onPress: () => {},

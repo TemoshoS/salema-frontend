@@ -1,24 +1,19 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * App.tsx
+ * Danger Zone Notifications Working Version
  */
 
 import React, { useEffect } from 'react';
 import {
-  Alert,
   Platform,
   SafeAreaView,
   StatusBar,
   useColorScheme,
   PermissionsAndroid,
-  
-  
+  LogBox,
 } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 
@@ -29,47 +24,33 @@ import AppNavigation from './src/navigation/AppNavigation';
 import { AdminStack } from './src/navigation/AdminNavigation';
 import { SecurityCompanyStack } from './src/navigation/SecurityCompanyStack';
 import { SecurityOfficerNavigation } from './src/navigation/SecurityOfficerNavigation';
-
 import { RoleStrings } from './src/constants/constants';
 import BackgroundLocationTracker from './src/utils/BackgroundGeoLocation';
 import { setupShakeListener } from './src/utils/shake';
 import AutoVoiceListener from './src/containers/AutoListener';
+import DangerZoneAlert from './src/containers/Ecommerce';
+
+
+LogBox.ignoreLogs([
+  'Support for defaultProps will be removed from function components in a future major release.',
+]);
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
+
 const RootNavigator = () => {
-  const { isLoggedIn, userDetails } = useAppSelector(state => state.auth);
-  const { emergencyContacts } = useAppSelector(state => state.emergencyContacts);
+  const { isLoggedIn, userDetails } = useAppSelector((state) => state.auth);
+  const { emergencyContacts } = useAppSelector((state) => state.emergencyContacts);
   const role = userDetails?.role;
-  
-  useEffect(() => {
-    PushNotification.createChannel(
-      {
-        channelId: 'danger-alerts',
-        channelName: 'Danger Alerts',
-        importance: 4, // High importance
-        vibrate: true,
-        soundName: 'default',
-      },
-      (created: boolean) => console.log(`📣 Notification channel created: ${created}`)
-    );
-  }, []);
-  
-  
 
+  // Create notification channel once
+  // Shake listener for emergency contacts
   useEffect(() => {
-    if (
-      role === RoleStrings.GU &&
-      Array.isArray(emergencyContacts) &&
-      emergencyContacts.length > 0
-    ) {
-      console.log('userDetails:', userDetails);
-
-      const userName = userDetails?.name || 'User'; // fallback if name not available
+    if (role === RoleStrings.GU && emergencyContacts?.length) {
+      const userName = userDetails?.name || 'User';
       const unsubscribeShake = setupShakeListener(emergencyContacts, userName);
-      return () => unsubscribeShake(); // Cleanup on unmount
+      return () => unsubscribeShake();
     }
   }, [emergencyContacts, role, userDetails?.name]);
-  
 
   if (!isLoggedIn) return <AuthNavigation />;
 
@@ -82,9 +63,7 @@ const RootNavigator = () => {
       ) : role === RoleStrings.SO ? (
         <SecurityOfficerNavigation />
       ) : (
-        <>
-          <AppNavigation />
-        </>
+        <AppNavigation />
       )}
     </>
   );
@@ -93,61 +72,64 @@ const RootNavigator = () => {
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: THEME_COLOR,
-  };
-
   useEffect(() => {
+    // Request notification permissions (Android 13+ and iOS)
     (async () => {
-      messaging().setBackgroundMessageHandler(async remoteMessage => {
-        console.log('Message handled in the background!', remoteMessage);
-      });
-
       if (Platform.OS === 'android') {
-        PermissionsAndroid.request(
+        await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
         );
-      } else if (Platform.OS === 'ios') {
+      } else {
         const authStatus = await messaging().requestPermission();
-        const enabled =
+        if (
           authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-        if (enabled) {
-          console.log('Authorization status:', authStatus);
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL
+        ) {
+          console.log('Notification permission granted:', authStatus);
         }
       }
     })();
 
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      const { title, body } = remoteMessage.notification || {};
-    
+    // Single foreground listener
+    const unsubscribeForeground = messaging().onMessage(async (remoteMessage) => {
       PushNotification.localNotification({
         channelId: 'danger-alerts',
-        title: title || 'Danger Zone Alert',
-        message: body || 'Someone has entered a danger zone.',
+        title:
+          remoteMessage?.data?.title ||
+          remoteMessage?.notification?.title ||
+          'Danger Zone Alert',
+        message:
+          remoteMessage?.data?.body ||
+          remoteMessage?.notification?.body ||
+          'You are near a danger zone!',
         playSound: true,
         soundName: 'default',
         importance: 'high',
+        // reduce stacking
+        tag: remoteMessage?.data?.collapseKey || 'danger-zone',
+        group: 'danger-zone',
+        // id: 777, // uncomment to replace the previous instead of stacking
       });
     });
 
     return () => {
-      unsubscribe();
+      unsubscribeForeground();
     };
   }, []);
 
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-      <SafeAreaView style={{ flex: 1, paddingTop: STATUSBAR_HEIGHT }}>
-  <StatusBar
-    translucent
-    backgroundColor="transparent"
-    barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-  />
+        <SafeAreaView
+          style={{ flex: 1, paddingTop: STATUSBAR_HEIGHT, backgroundColor: THEME_COLOR }}
+        >
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          />
           <RootNavigator />
-          <BackgroundLocationTracker />
+          <DangerZoneAlert />
         </SafeAreaView>
       </PersistGate>
     </Provider>

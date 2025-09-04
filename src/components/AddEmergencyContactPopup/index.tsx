@@ -103,75 +103,83 @@ const AddEmergencyContactPopup: React.FC<AddEmergencyContactProps> = ({
         transparent={true}
         visible={modalVisible}
         onRequestClose={onClosePressed}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Add Emergency Contact</Text>
-              <TouchableOpacity onPress={onClosePressed}>
-                <Text style={styles.closeButton}>X</Text>
-              </TouchableOpacity>
-            </View>
+       <View style={styles.modalContainer}>
+  <View style={styles.modalContent}>
+    {/* Header */}
+    <View style={styles.header}>
+      <Text style={styles.title}>Add Emergency Contact</Text>
+      <TouchableOpacity onPress={onClosePressed}>
+        <Text style={styles.closeButton}>X</Text>
+      </TouchableOpacity>
+    </View>
 
-            <FormTextInput
-              label="Name"
-              value={emergencyContact.name}
-              onTextChanged={text =>
-                setEmergencyContact({...emergencyContact, name: text})
-              }
-            />
+    {/* Name Input */}
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>Name</Text>
+      <TextInput
+        style={styles.textInput}
+        value={emergencyContact.name}
+        onChangeText={text => setEmergencyContact({...emergencyContact, name: text})}
+        placeholder="Enter full name"
+      />
+    </View>
 
-            <FormTextInput
-              label="Email"
-              value={emergencyContact.email}
-              onTextChanged={text =>
-                setEmergencyContact({...emergencyContact, email: text})
-              }
-            />
+    {/* Email Input */}
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>Email</Text>
+      <TextInput
+        style={styles.textInput}
+        value={emergencyContact.email}
+        onChangeText={text => setEmergencyContact({...emergencyContact, email: text})}
+        placeholder="Enter email"
+        keyboardType="email-address"
+      />
+    </View>
 
-            <FormTextInput
-              label="Relationship"
-              value={emergencyContact.relationship}
-              onTextChanged={text =>
-                setEmergencyContact({...emergencyContact, relationship: text})
-              }
-            />
+    {/* Relationship Input */}
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>Relationship</Text>
+      <TextInput
+        style={styles.textInput}
+        value={emergencyContact.relationship}
+        onChangeText={text => setEmergencyContact({...emergencyContact, relationship: text})}
+        placeholder="e.g., Father, Sister"
+      />
+    </View>
 
-<View style={styles.phoneInputContainer}>
-  <TouchableOpacity
-    onPress={() => setShowCountryPicker(true)}
-    style={styles.flagContainer}>
-    <CountryPicker
-      withFilter
-      withCallingCode
-      withFlag
-      withEmoji
-      countryCode={countryCode}
-      onSelect={onSelectCountry}
-      visible={showCountryPicker}
-      onClose={() => setShowCountryPicker(false)}
-    />
-  </TouchableOpacity>
+    {/* Phone Input */}
+    <View style={styles.phoneInputContainer}>
+      <TouchableOpacity style={styles.flagContainer} onPress={() => setShowCountryPicker(true)}>
+        <CountryPicker
+          withFilter
+          withCallingCode
+          withFlag
+          withEmoji
+          countryCode={countryCode}
+          onSelect={onSelectCountry}
+          visible={showCountryPicker}
+          onClose={() => setShowCountryPicker(false)}
+        />
+      </TouchableOpacity>
+      <Text style={styles.prefix}>+{callingCode}</Text>
+      <TextInput
+        style={styles.phoneTextInput}
+        keyboardType="phone-pad"
+        placeholder="Enter phone number"
+        value={emergencyContact.phone}
+        onChangeText={text => setEmergencyContact({...emergencyContact, phone: text})}
+      />
+    </View>
 
-  <View style={styles.phoneInputWrapper}>
-    <Text style={styles.prefix}>+{callingCode}</Text>
-    <TextInput
-      style={styles.phoneTextInput}
-      keyboardType="phone-pad"
-      placeholder="Enter phone number"
-      value={emergencyContact.phone}
-      onChangeText={text =>
-        setEmergencyContact({...emergencyContact, phone: text})
-      }
-    />
+    {/* Save Button */}
+    <TouchableOpacity style={styles.saveButtonContainer} onPress={handleSave}>
+      <View style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </View>
+    </TouchableOpacity>
   </View>
 </View>
 
-
-            <View style={styles.saveButtonContainer}>
-              <Button title="Save" onPress={handleSave} />
-            </View>
-          </View>
-        </View>
       </Modal>
     </View>
   );

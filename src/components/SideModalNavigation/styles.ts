@@ -32,7 +32,7 @@ export default StyleSheet.create({
     fontSize: 20,
     fontFamily: ROBOTO_BOLD,
     margin: 20,
-    color: BLACK,
+    color: '#002E15',
   },
   navigationButton: {
     paddingVertical: 15,
@@ -41,7 +41,7 @@ export default StyleSheet.create({
   },
   navigationButtonText: {
     fontSize: 16,
-    color: '#007bff',
+    color: '#002E15',
     marginStart: 20,
   },
   radiocontainer: {

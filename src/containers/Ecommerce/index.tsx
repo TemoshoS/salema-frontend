@@ -1,182 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  Platform,
-  PermissionsAndroid,
-} from 'react-native';
+// DangerZoneAlert.tsx
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import axiosInstance from '../../utils/axiosInstance';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
+import axiosInstance from '../../utils/axiosInstance';
 
+const COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+const DISTANCE_FILTER_M = 50;       // only react to ~50m change
 
 const DangerZoneAlert: React.FC = () => {
   const [isNearDanger, setIsNearDanger] = useState<boolean | null>(null);
   const [dangerZoneName, setDangerZoneName] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [locationInterval, setLocationInterval] = useState<NodeJS.Timeout | null>(null);
+  const lastAlertAtRef = useRef<number>(0);
+  const watchIdRef = useRef<number | null>(null);
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
 
-  // Request location permission (Android)
-  const checkLocationPermission = async () => {
+  const requestLocationPermissions = async () => {
     if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'We need your location to warn about danger zones nearby.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
+      const fine = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (fine !== PermissionsAndroid.RESULTS.GRANTED) return false;
+
+      // Android 10+ background location if you need alerts with app in bg
+      if (Platform.Version >= 29) {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
         );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
       }
-    } else {
-      // iOS: Handle permission differently if needed
-      return true; // Assuming permission is granted
+      return true;
+    }
+    // iOS: request "always" if you need alerts with app killed
+    return true;
+  };
+
+  const getFcmToken = async () => {
+    try {
+      const token = await messaging().getToken();
+      setFcmToken(token);
+      // optional: send token to backend once & on refresh
+      // await axiosInstance.post('/fcm-token', { token });
+      messaging().onTokenRefresh(async (t) => {
+        setFcmToken(t);
+        // await axiosInstance.post('/fcm-token', { token: t });
+      });
+    } catch (e) {
+      console.log('FCM token error', e);
     }
   };
 
-  // Call backend to check if user is near a danger zone
   const checkDangerZone = async (latitude: number, longitude: number) => {
+    const now = Date.now();
+    if (now - lastAlertAtRef.current < COOLDOWN_MS) {
+      // skip frequent server calls
+      return;
+    }
     try {
       const res = await axiosInstance.post('/danger-zone/v1/check', {
         location: { latitude, longitude },
+        fcmToken, // so server can target THIS device if it wants
       });
 
-      if (res.data.status === 'OK' && res.data.message.includes('within')) {
-        // Extract zone name from message or use zone property if available
-        const zoneName = res.data.zone?.name
-          ? res.data.zone.name
-          : res.data.message.split('-')[1]?.trim() || 'Unknown Danger Zone';
+      if (res.data.status === 'OK' && res.data.message?.includes('within')) {
+        const zoneName =
+          res.data.zone?.name ||
+          res.data.message.split('-')[1]?.trim() ||
+          'Unknown Danger Zone';
 
         setIsNearDanger(true);
         setDangerZoneName(zoneName);
+        lastAlertAtRef.current = now;
+
+        // Local notification (if server didn’t send FCM)
+        PushNotification.localNotification({
+          channelId: 'danger-alerts',
+          title: 'Danger Zone Alert',
+          message: `Safety Alert: You’ve entered a dangerous area — ${zoneName}`,
+          playSound: true,
+          soundName: 'default',
+          importance: 'high',
+          tag: 'danger-zone',
+          group: 'danger-zone',
+        });
       } else {
         setIsNearDanger(false);
         setDangerZoneName('');
       }
-    } catch (error) {
-      console.error('Error checking danger zone:', error);
-      setIsNearDanger(null);
-      setDangerZoneName('');
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      console.log('checkDangerZone error', e);
     }
   };
 
-  // Start location updates on interval
-  const startLocationTracking = () => {
-    const interval = setInterval(() => {
-      Geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          checkDangerZone(latitude, longitude);
-        },
-        (error) => {
-          console.error('Location error:', error);
-          setLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
-    }, 30000); // every 30 seconds
-
-    setLocationInterval(interval);
-  };
-
   useEffect(() => {
-    const init = async () => {
-      const permissionGranted = await checkLocationPermission();
-      if (permissionGranted) {
-        startLocationTracking();
-      } else {
+    let mounted = true;
+
+    (async () => {
+      const ok = await requestLocationPermissions();
+      await getFcmToken();
+      if (!ok) {
         Alert.alert(
           'Permission Denied',
           'Location permission is required to check for danger zones.'
         );
-        setLoading(false);
+        return;
       }
-    };
-  
-    init();
-  
-    // 🔔 Listen for foreground FCM messages
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      const { title, body } = remoteMessage.notification || {};
-  
-      PushNotification.localNotification({
-        channelId: 'danger-alerts',
-        title: title || 'Danger Zone Alert',
-        message: body || 'Someone has entered a danger zone.',
-      });
-    });
-  
+
+      // Start watch
+      watchIdRef.current = Geolocation.watchPosition(
+        (pos) => {
+          if (!mounted) return;
+          const { latitude, longitude } = pos.coords;
+          checkDangerZone(latitude, longitude);
+        },
+        (err) => console.log('Location error:', err),
+        {
+          enableHighAccuracy: true,
+          distanceFilter: DISTANCE_FILTER_M, // only get callback after x meters
+          interval: 60_000, // Android: desired update interval
+          fastestInterval: 30_000, // Android
+          useSignificantChanges: false, // iOS option if you want very low power
+        }
+      );
+    })();
+
     return () => {
-      if (locationInterval) {
-        clearInterval(locationInterval);
+      mounted = false;
+      if (watchIdRef.current != null) {
+        Geolocation.clearWatch(watchIdRef.current);
       }
-      unsubscribe(); // Clean up FCM listener
     };
   }, []);
-  
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" />
-        <Text>Checking your location...</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      {isNearDanger ? (
-        <View style={styles.dangerAlert}>
-          <Text style={styles.dangerText}>⚠️ Warning!</Text>
-          <Text style={styles.dangerText}>You are near: {dangerZoneName}</Text>
-          <Text style={styles.dangerText}>Please proceed with caution.</Text>
-        </View>
-      ) : (
-        <Text style={styles.safeText}>✅ You are not near any danger zones.</Text>
-      )}
-    </View>
-  );
+  return null;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  dangerAlert: {
-    backgroundColor: '#ffebee',
-    borderColor: '#ef9a9a',
-    borderWidth: 1,
-    padding: 20,
-    borderRadius: 10,
-  },
-  dangerText: {
-    color: '#c62828',
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  safeText: {
-    color: '#2e7d32',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-});
 
 export default DangerZoneAlert;

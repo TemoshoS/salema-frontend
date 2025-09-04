@@ -1,42 +1,64 @@
 import {StyleSheet} from 'react-native';
-import {BLACK, THEME_COLOR, WHITE} from '../../constants/colors';
+import {BLACK, THEME_COLOR, WHITE, GREEN, BUTTON_COLOR} from '../../constants/colors';
 import {ROBOTO, ROBOTO_BOLD} from '../../constants/fonts';
 
 export default StyleSheet.create({
   cardView: {
-    flex: 1,
-    backgroundColor: '#fff', // White background
-    padding: 20, // Padding inside the card
-    borderRadius: 10, // Rounded corners
-    // Shadow for iOS
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: WHITE,
+    padding: 20,
+    borderRadius: 20,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    shadowColor: BLACK,
+    shadowOffset: {width: 0, height: 6},
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    // Shadow for Android
-    elevation: 5,
-    marginHorizontal: 10,
-    marginTop: 20, // Some margin around the card
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  iconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: THEME_COLOR + '20', // translucent theme color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 15,
   },
   header: {
     fontSize: 18,
     fontFamily: ROBOTO_BOLD,
     color: BLACK,
+    marginBottom: 4,
   },
   itemText: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: ROBOTO,
-    color: BLACK,
+    color: GREEN,
+    marginBottom: 2,
   },
-  rowFront: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    justifyContent: 'center',
-  },
-  text: {
+  requestText: {
     fontSize: 16,
+    fontFamily: ROBOTO_BOLD,
+    color: THEME_COLOR,
+    marginTop: 4,
+  },
+  badge: {
+    backgroundColor: BUTTON_COLOR,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginTop: 5,
+  },
+  badgeText: {
+    color: WHITE,
+    fontSize: 12,
+    fontFamily: ROBOTO_BOLD,
   },
   rowBack: {
     alignItems: 'center',
@@ -46,28 +68,48 @@ export default StyleSheet.create({
     paddingRight: 15,
   },
   deleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#FF4D4D',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
     width: 70,
     height: 70,
-    borderRadius: 10,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  deleteButtonCard: {
+    backgroundColor: '#FF4D4D',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
   },
   deleteText: {
-    color: '#fff',
+    color: WHITE,
     fontWeight: 'bold',
+    fontSize: 14,
   },
+  
   floatingButton: {
     backgroundColor: THEME_COLOR,
     width: 70,
     height: 70,
-    borderRadius: 40,
+    borderRadius: 35,
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: 25,
+    right: 25,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: BLACK,
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 10,
   },
-  floatingText: {color: WHITE, fontSize: 50, fontFamily: ROBOTO_BOLD},
+  floatingText: {
+    color: WHITE,
+    fontSize: 40,
+    fontFamily: ROBOTO_BOLD,
+  },
 });

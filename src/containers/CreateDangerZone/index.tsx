@@ -12,24 +12,39 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Marker, Region , Circle} from 'react-native-maps';
 import { PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import axiosInstance from '../../utils/axiosInstance';
 import Header from '../../components/Header';
-
-const API_KEY = 'AIzaSyDbvMXhIzbnnN8x7kRe1eL2XASvPNNUSDk';
+import { GOOGLE_API_KEY } from '@env';
 
 const CreateDangerZone: React.FC = () => {
   const [location, setLocation] = useState<Region | null>(null);
-  const [locationName, setLocationName] = useState<string>('Danger Zone');
+  const [locationName, setLocationName] = useState<string>(''); // start empty
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const mapRef = useRef<MapView | null>(null);
   const autocompleteRef = useRef<any>(null);
+
+  // Get place name from coordinates
+  const getPlaceNameFromCoords = async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`
+      );
+      const json = await res.json();
+      if (json.results && json.results.length > 0) {
+        return json.results[0].formatted_address;
+      }
+    } catch (err) {
+      console.error('Geocoding error:', err);
+    }
+    return 'Unknown Location';
+  };
 
   useEffect(() => {
     const requestPermissionAndGetLocation = async () => {
@@ -45,7 +60,7 @@ const CreateDangerZone: React.FC = () => {
       }
 
       Geolocation.getCurrentPosition(
-        pos => {
+        async pos => {
           const currentLoc: Region = {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
@@ -53,6 +68,14 @@ const CreateDangerZone: React.FC = () => {
             longitudeDelta: 0.01,
           };
           setLocation(currentLoc);
+
+          // Get location name from coords
+          const placeName = await getPlaceNameFromCoords(
+            pos.coords.latitude,
+            pos.coords.longitude
+          );
+          setLocationName(placeName);
+
           setLoading(false);
         },
         error => {
@@ -66,7 +89,7 @@ const CreateDangerZone: React.FC = () => {
     requestPermissionAndGetLocation();
   }, []);
 
-  // When user selects a place from autocomplete, update location and move map
+  // When user selects a place from autocomplete
   const onPlaceSelected = (data: any, details: any = null) => {
     if (details?.geometry?.location) {
       const loc = details.geometry.location;
@@ -77,7 +100,7 @@ const CreateDangerZone: React.FC = () => {
         longitudeDelta: 0.01,
       };
       setLocation(newRegion);
-      setLocationName(data.description); 
+      setLocationName(data.description); // set real name
       mapRef.current?.animateToRegion(newRegion, 1000);
       Keyboard.dismiss();
     }
@@ -86,6 +109,11 @@ const CreateDangerZone: React.FC = () => {
   const saveDangerZone = async () => {
     if (!location) {
       Alert.alert('Location not found', 'Cannot save danger zone without location.');
+      return;
+    }
+
+    if (!locationName || locationName.trim() === '') {
+      Alert.alert('Missing Name', 'Please select or confirm a location name before saving.');
       return;
     }
 
@@ -104,10 +132,8 @@ const CreateDangerZone: React.FC = () => {
 
       const response = await axiosInstance.post('/danger-zone/v1/save', payload);
 
-
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Success', 'Danger zone saved successfully.');
-    
       } else {
         Alert.alert('Error', 'Failed to save danger zone.');
       }
@@ -132,57 +158,68 @@ const CreateDangerZone: React.FC = () => {
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-        <Header title={'Map'} />
+          <Header title={'Map'} />
+
+          {/* Map */}
+          <View style={{ flex: 1 }}>
+          <MapView
+  provider={PROVIDER_GOOGLE}
+  ref={mapRef}
+  style={styles.map}
+  region={location || undefined}
+  showsUserLocation
+  pointerEvents={isSearchFocused ? 'none' : 'auto'}
+  onRegionChangeComplete={region => setLocation(region)}
+>
+  {location && (
+    <>
+      <Marker
+        coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+        title={locationName || 'Selected Location'}
+        pinColor="red"
+      />
+      <Circle
+        center={{
+          latitude: location.latitude,
+          longitude: location.longitude,
+        }}
+        radius={5000} // 5 km
+        strokeColor="rgba(255,90,95,0.8)"
+        fillColor="rgba(255,90,95,0.2)"
+      />
+    </>
+  )}
+</MapView>
 
 
-         {/* Map */}
-         <View style={{ flex: 1 }}>
-         <MapView
-            provider={PROVIDER_GOOGLE}
-            ref={mapRef}
-            style={styles.map}
-            region={location || undefined}
-            showsUserLocation
-            pointerEvents={isSearchFocused ? 'none' : 'auto'}
-            onRegionChangeComplete={region => setLocation(region)}
-          >
-            {location && (
-              <Marker
-                coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                title="Danger Zone Location"
-                pinColor="red"
+
+            {/* Google Places Autocomplete Search */}
+            <View style={styles.searchContainer}>
+              <GooglePlacesAutocomplete
+                ref={autocompleteRef}
+                placeholder="Search place"
+                fetchDetails
+                onPress={onPlaceSelected}
+                query={{
+                  key: GOOGLE_API_KEY,
+                  language: 'en',
+                }}
+                textInputProps={{
+                  onFocus: () => setIsSearchFocused(true),
+                  onBlur: () => setIsSearchFocused(false),
+                  placeholderTextColor: '#555',
+                  autoCapitalize: 'none',
+                }}
+                enablePoweredByContainer={false}
+                styles={{
+                  textInputContainer: { backgroundColor: 'white', borderRadius: 5 },
+                  textInput: { height: 44, color: '#000' },
+                  listView: { backgroundColor: 'white' },
+                }}
               />
-            )}
-          </MapView>
-
-          {/* Google Places Autocomplete Search */}
-          <View style={styles.searchContainer}>
-            <GooglePlacesAutocomplete
-              ref={autocompleteRef}
-              placeholder="Search place"
-              fetchDetails
-              onPress={onPlaceSelected}
-              query={{
-                key: API_KEY,
-                language: 'en',
-              }}
-              textInputProps={{
-                onFocus: () => setIsSearchFocused(true),
-                onBlur: () => setIsSearchFocused(false),
-                placeholderTextColor: '#555',
-                autoCapitalize: 'none',
-              }}
-              enablePoweredByContainer={false}
-              styles={{
-                textInputContainer: { backgroundColor: 'white', borderRadius: 5 },
-                textInput: { height: 44, color: '#000' },
-                listView: { backgroundColor: 'white' },
-              }}
-            />
-          </View>
+            </View>
           </View>
 
-         
           {/* Save Button */}
           <TouchableOpacity
             style={styles.saveButton}
@@ -211,7 +248,7 @@ const styles = StyleSheet.create({
     top: 15,
     width: '90%',
     alignSelf: 'center',
-    zIndex: 1000, // on top
+    zIndex: 1000,
   },
   map: {
     flex: 1,

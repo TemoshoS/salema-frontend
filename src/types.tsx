@@ -16,7 +16,9 @@ export type RootStackParamList = {
   ChatBot: undefined;
   RequestList: undefined;
   MissingPersonEntry: undefined;
+  MissingPersonDetails: undefined;
   ClientList: undefined;
+  MissingPersons: undefined;
   SecurityCompanyList: undefined;
   CompanyDetails: {
     _id: string;

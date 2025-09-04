@@ -1,5 +1,5 @@
 // src/screens/ChatBot/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,27 +11,39 @@ import {
 import axios from 'axios';
 import styles from './styles';
 import Header from '../../components/Header';
-import { OPENAI_API_KEY } from '@env';
+import { OPENAI_API_KEY, GOOGLE_API_KEY, GOOGLE_CX_ID } from '@env';
 
+// ✅ Define message type
+type Message = {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+};
 
-
-
-const ChatBot = () => {
-  
-  const [messages, setMessages] = useState([
+const ChatBot: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       text: 'Hi! I’m Salema. How can I assist you today?',
       sender: 'bot',
     },
   ]);
-  const [inputText, setInputText] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [inputText, setInputText] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const flatListRef = useRef<FlatList>(null);
+
+  // Scroll to latest message
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const userMsg = {
+    const userMsg: Message = {
       id: Date.now().toString(),
       text: inputText,
       sender: 'user',
@@ -42,6 +54,32 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
+      if (!GOOGLE_API_KEY || !GOOGLE_CX_ID || !OPENAI_API_KEY) {
+        throw new Error('Missing API keys in environment variables.');
+      }
+
+      // ✅ Fetch live Google search results
+      const searchRes = await axios.get('https://www.googleapis.com/customsearch/v1', {
+        params: {
+          key: GOOGLE_API_KEY,
+          cx: GOOGLE_CX_ID,
+          q: encodeURIComponent(userMsg.text),
+          num: 5,
+        },
+      });
+
+      const searchResults: string =
+        searchRes.data.items
+          ?.map((item: any) => `${item.title} - ${item.snippet}`)
+          .join('\n') || 'No results found.';
+
+      // ✅ Detect urgent keywords
+      const urgentKeywords = ['hijack', 'kidnap', 'danger', 'robbery', 'attack', 'help'];
+      const isUrgent = urgentKeywords.some(kw =>
+        inputText.toLowerCase().includes(kw)
+      );
+
+      // ✅ Send user message + search results to OpenAI
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
@@ -49,12 +87,13 @@ const ChatBot = () => {
           messages: [
             {
               role: 'system',
-              content: `You are Salema, a protective and street-smart safety assistant inside the Salema app.
-              The app helps South Africans stay safe by letting them report missing persons, get alerts in dangerous zones,
-              use shake detection to trigger emergency help, and send SMS to trusted contacts. 
-              You respond like a calm and streetwise big sibling. Use township slang when needed, but stay clear and helpful.
-              Your role is to comfort users, give advice, and guide them through safety tools in the app.
-              NEVER mention you're an AI or OpenAI model. You ARE Salema.`,
+              content: `
+You are Salema, a protective and street-smart safety assistant for South Africans.
+Respond calmly, give safety advice, guide users on emergency features (shake detection, panic alerts, SOS SMS).
+Use township slang where appropriate, stay clear and helpful.
+Do NOT reveal you are AI. You ARE Salema.
+Use the following Google search results to help the user:
+${searchResults}`,
             },
             { role: 'user', content: userMsg.text },
           ],
@@ -68,20 +107,27 @@ const ChatBot = () => {
         }
       );
 
-      const botText = response.data.choices[0].message.content;
+      let botText: string = response.data.choices?.[0]?.message?.content ||
+        'Sorry, I could not get a response.';
 
-      const botMsg = {
+      if (isUrgent) {
+        botText = `🚨 Hey! Stay safe: ${botText}`;
+        // Optional: triggerPanicSMS() here if integrated
+      }
+
+      const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         text: botText,
         sender: 'bot',
       };
 
       setMessages(prev => [botMsg, ...prev]);
-    } catch (error) {
-      console.error('OpenAI API error:', error);
-      const errorMsg = {
+    } catch (error: any) {
+      console.error('Error in sendMessage:', error?.response?.data || error.message);
+
+      const errorMsg: Message = {
         id: (Date.now() + 2).toString(),
-        text: 'Sorry, something went wrong with the AI response.',
+        text: 'Sorry, something went wrong while fetching info.',
         sender: 'bot',
       };
       setMessages(prev => [errorMsg, ...prev]);
@@ -90,14 +136,21 @@ const ChatBot = () => {
     }
   };
 
-  const renderItem = ({ item }: any) => (
+  const renderItem = ({ item }: { item: Message }) => (
     <View
       style={[
         styles.messageBubble,
         item.sender === 'user' ? styles.userBubble : styles.botBubble,
       ]}
     >
-      <Text style={styles.messageText}>{item.text}</Text>
+      <Text
+        style={[
+          styles.messageText,
+          item.sender === 'user' && styles.userText,
+        ]}
+      >
+        {item.text}
+      </Text>
     </View>
   );
 
@@ -106,6 +159,7 @@ const ChatBot = () => {
       <Header title="Chat with Salema" />
 
       <FlatList
+        ref={flatListRef}
         data={messages}
         inverted
         keyExtractor={item => item.id}
