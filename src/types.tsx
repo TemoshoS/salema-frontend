@@ -12,7 +12,7 @@ export type RootStackParamList = {
   Profile: undefined;
   CreateRequest: {location?: locationProp; companyId?: string | undefined};
   MapComponent: undefined;
-  SetNewPassword: { email: string; token: string };
+  SetNewPassword: { email: string; token?: string };
   ChatBot: undefined;
   RequestList: undefined;
   MissingPersonEntry: undefined;

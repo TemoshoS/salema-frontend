@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Alert,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -17,15 +16,22 @@ import styles from './styles';
 
 const SetNewPassword = ({ route }: any) => {
   const navigation = useNavigation();
+  const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { email, token } = route.params;
+  const { email } = route.params; // ✅ token is entered manually
 
   const handleSetPassword = async () => {
+    if (!token) {
+      Alert.alert('Error', 'Please enter the reset code');
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
+
     try {
       await axiosInstance.post('/user/v1/reset-with-token', {
         email,
@@ -47,6 +53,13 @@ const SetNewPassword = ({ route }: any) => {
       <View style={{ flex: 1 }}>
         <Header title="Set New Password" />
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
+          
+          <FormTextInput
+            label="Reset Code"
+            value={token}
+            onTextChanged={setToken}
+            placeholder="Enter 6-digit code"
+          />
           <FormTextInput
             label="New Password"
             value={password}
@@ -61,6 +74,7 @@ const SetNewPassword = ({ route }: any) => {
             onTextChanged={setConfirmPassword}
             placeholder="Confirm new password"
           />
+          
           <View style={{ marginTop: 20 }}>
             <CommonButton text="Set Password" onPress={handleSetPassword} />
           </View>

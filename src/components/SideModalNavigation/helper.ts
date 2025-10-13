@@ -43,7 +43,7 @@ export const getNavigationOptions = (
    
     {title: 'Profile', onPress: () => navigation.navigate('Profile')},
     {title: 'Chat With Us', onPress: () => navigation.navigate('ChatBot')},
-    {title: 'Ride Along', onPress: () => navigation.navigate('RideAlong')},
+    /*{title: 'Ride Along', onPress: () => navigation.navigate('RideAlong')},*/
     /*{
       title: 'Create Request',
       onPress: () => navigation.navigate('SelectSecurityCompany'),

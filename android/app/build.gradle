@@ -90,8 +90,8 @@ android {
         applicationId "com.maduane.salema"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.0.1"
+        versionCode 11
+        versionName "1.0.1"
     }
 
     flavorDimensions "store"
@@ -130,6 +130,9 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:19.0.0"
 
     implementation 'com.google.firebase:firebase-messaging:24.0.0' 
+
+       // Play Billing
+    implementation "com.android.billingclient:billing:6.0.1"
 
     // React Native Maps
     implementation project(':react-native-maps')
