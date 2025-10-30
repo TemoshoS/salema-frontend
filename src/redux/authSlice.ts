@@ -107,6 +107,8 @@ export const securityCompanyRegister = createAsyncThunk(
       password: string;
       branches: string[];
       securityServices: string[];
+      latitude: number;
+      longitude: number;
     },
     {rejectWithValue},
   ) => {

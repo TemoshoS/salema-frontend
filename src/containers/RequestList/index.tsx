@@ -11,7 +11,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getvoiceCommands } from '../../redux/voiceNoteSlice';
 import RNShake from 'react-native-shake';
 import Header from '../../components/Header';
-import { triggerShakeManually } from '../../utils/shake';
+import { triggerEmergencySms} from '../../utils/shake';
 import WelcomeHome from '../../components/WelcomeHome';
 import { MAIN_ICON, INACTIVEICON, NO, UNDRAW } from '../../constants/assets';
 
@@ -29,6 +29,7 @@ export default function RequestList() {
 
   const userDetails = useAppSelector(state => state.auth.userDetails);
   const userName = userDetails?.userName ?? 'user';
+  console.log('User Details', userDetails);
 
   const [currentIcon, setCurrentIcon] = useState(INACTIVEICON);
 
@@ -46,7 +47,7 @@ export default function RequestList() {
 
   useEffect(() => {
     const subscription = RNShake.addListener(() => {
-      triggerShakeManually(userName);
+      triggerEmergencySms(userName);
       Alert.alert(
         'Emergency Alert',
         'Your emergency contacts have been notified.',
@@ -75,7 +76,7 @@ export default function RequestList() {
       {role === RoleStrings.GU && (
         <TouchableOpacity
           onPress={() => {
-            triggerShakeManually(userName);
+            triggerEmergencySms(userName);
             changeIconTemporary();
           }}
           style={{
@@ -96,6 +97,6 @@ export default function RequestList() {
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Panic Button</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </View> 
   );
 }

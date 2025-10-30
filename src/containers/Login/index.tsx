@@ -22,13 +22,15 @@ import type {RootStackParamList} from '../../types';
 import axiosInstance from '../../utils/axiosInstance';
 import messaging from '@react-native-firebase/messaging';
 import {registerDevice} from '../../redux/authSlice';
+import { getEmergencyContacts } from '../../redux/emergencyContactSlice';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const dispatch = useAppDispatch();
-  const {error, loading} = useAppSelector(state => state.auth);
+  const {error, loading, userDetails} = useAppSelector(state => state.auth);
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -61,9 +63,14 @@ export default function Login() {
       const resultAction = await dispatch(login({email, password}));
   
       if (login.fulfilled.match(resultAction)) {
-        const accessToken = resultAction.payload?.access_token;
+        const payload = resultAction.payload as any;
+        //const userName = payload?.userName; // ✅ properly defined
+        //console.log('Logged in user:', userName);
+        //Alert.alert('Welcome', `Hello ${userName || 'User'}!`);
+        await dispatch(getEmergencyContacts());
+        const accessToken = payload?.access_token;
         const fcmToken = await messaging().getToken();
-  
+      
         if (fcmToken && accessToken) {
           await dispatch(
             registerDevice({
@@ -73,6 +80,7 @@ export default function Login() {
           );
         }
       }
+      
     } catch (error) {
       console.error('Login or FCM setup error:', error);
       Alert.alert('Error', 'Something went wrong during login.');
