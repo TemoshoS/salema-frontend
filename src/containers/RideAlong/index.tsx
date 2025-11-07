@@ -19,8 +19,11 @@ import { getDistance } from 'geolib';
 import { GooglePlacesAutocomplete, GooglePlacesAutocompleteRef } from 'react-native-google-places-autocomplete';
 import axios from 'axios';
 import 'react-native-get-random-values';
+import { GOOGLE_API_KEY } from '@env';
 
-const API_KEY = 'AIzaSyDbvMXhIzbnnN8x7kRe1eL2XASvPNNUSDk';
+
+
+const API_KEY = GOOGLE_API_KEY;
 
 const RideAlong: React.FC = () => {
   const [location, setLocation] = useState<Region | undefined>(undefined);

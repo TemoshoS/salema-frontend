@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Text,
@@ -7,30 +7,30 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator, // <-- import ActivityIndicator
 } from 'react-native';
 import styles from './styles';
 import Header from '../../components/Header';
 import FormTextInput from '../../components/FormTextInput';
 import LogoBanner from '../../components/LogoBanner';
 import CommonButton from '../../components/CommonButton';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {login, resetPage} from '../../redux/authSlice';
-import {validateEmail} from '../../utils/helper';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {RootStackParamList} from '../../types';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { login, resetPage } from '../../redux/authSlice';
+import { validateEmail } from '../../utils/helper';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../types';
 import axiosInstance from '../../utils/axiosInstance';
 import messaging from '@react-native-firebase/messaging';
-import {registerDevice} from '../../redux/authSlice';
+import { registerDevice } from '../../redux/authSlice';
 import { getEmergencyContacts } from '../../redux/emergencyContactSlice';
-
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const dispatch = useAppDispatch();
-  const {error, loading, userDetails} = useAppSelector(state => state.auth);
+  const { error, loading, userDetails } = useAppSelector(state => state.auth);
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -43,7 +43,7 @@ export default function Login() {
       } else {
         Alert.alert('Login Failed', error.message || 'Something went wrong.');
       }
-  
+
       dispatch(resetPage());
     }
   }, [error]);
@@ -53,24 +53,21 @@ export default function Login() {
       Alert.alert('Validation Error', 'Please fill in both email and password.');
       return;
     }
-  
+
     if (!validateEmail(email)) {
       Alert.alert('Validation Error', 'Please enter a valid email address.');
       return;
     }
-  
+
     try {
-      const resultAction = await dispatch(login({email, password}));
-  
+      const resultAction = await dispatch(login({ email, password }));
+
       if (login.fulfilled.match(resultAction)) {
         const payload = resultAction.payload as any;
-        //const userName = payload?.userName; // ✅ properly defined
-        //console.log('Logged in user:', userName);
-        //Alert.alert('Welcome', `Hello ${userName || 'User'}!`);
         await dispatch(getEmergencyContacts());
         const accessToken = payload?.access_token;
         const fcmToken = await messaging().getToken();
-      
+
         if (fcmToken && accessToken) {
           await dispatch(
             registerDevice({
@@ -80,7 +77,6 @@ export default function Login() {
           );
         }
       }
-      
     } catch (error) {
       console.error('Login or FCM setup error:', error);
       Alert.alert('Error', 'Something went wrong during login.');
@@ -92,27 +88,22 @@ export default function Login() {
       Alert.alert('Validation Error', 'Please enter your email to reset your password.');
       return;
     }
-  
+
     if (!validateEmail(email)) {
       Alert.alert('Validation Error', 'Please enter a valid email address.');
       return;
     }
-  
+
     try {
       const response = await axiosInstance.post('/user/v1/forgot-password', { email });
-      // ✅ Backend ONLY returns message, so we don’t expect token here
-      Alert.alert(
-        'Success',
-        'A reset code has been sent to your email.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              navigation.navigate('SetNewPassword', { email });
-            },
+      Alert.alert('Success', 'A reset code has been sent to your email.', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate('SetNewPassword', { email });
           },
-        ]
-      );
+        },
+      ]);
     } catch (error: any) {
       Alert.alert('Error', error?.response?.data?.message || 'Something went wrong');
     }
@@ -120,11 +111,12 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={{flex: 1}}>
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={{ flex: 1 }}>
         <Header title="" />
-        <ScrollView contentContainerStyle={{paddingBottom: 100}}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           <LogoBanner />
 
           <FormTextInput
@@ -138,12 +130,16 @@ export default function Login() {
             isPassword
             onTextChanged={(text: string) => setPassword(text)}
           />
-          
-          <CommonButton needTopSpace text="LOG IN" onPress={onLoginPressed} />
+
+          {loading ? (
+            <ActivityIndicator size="large" color="#20C997" style={{ marginTop: 20 }} />
+          ) : (
+            <CommonButton needTopSpace text="LOG IN" onPress={onLoginPressed} />
+          )}
 
           <View style={styles.footer}>
             <TouchableOpacity onPress={onForgotPassword}>
-              <Text style={{color: '#20C997'}}>Forgot your password?</Text>
+              <Text style={{ color: '#20C997' }}>Forgot your password?</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

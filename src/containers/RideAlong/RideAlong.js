@@ -21,6 +21,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import axios from 'axios';
 import 'react-native-get-random-values';
 import Header from '../../components/Header';
+import { GOOGLE_API_KEY } from '@env';
 
 // Pulse component for the blue pulsing effect
 const Pulse = () => {
@@ -91,7 +92,7 @@ export default function RideAlong() {
   const [durationText, setDurationText] = useState('');
 
   const mapRef = useRef(null);
-  const apiKey = 'AIzaSyDbvMXhIzbnnN8x7kRe1eL2XASvPNNUSDk';
+  const apiKey = GOOGLE_API_KEY;
 
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(

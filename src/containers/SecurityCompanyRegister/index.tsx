@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, View, StyleSheet, PermissionsAndroid, Platform } from "react-native";
+import {
+  Alert,
+  ScrollView,
+  View,
+  StyleSheet,
+  PermissionsAndroid,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import Geolocation from "react-native-geolocation-service";
 
 import FormTextInput from "../../components/FormTextInput";
@@ -40,18 +48,40 @@ export default function SecurityCompanyRegister() {
   });
 
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
-  const { error } = useAppSelector((state) => state.auth);
+  const { error, success } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (error) {
-      Alert.alert("", error.message);
+      setLoading(false);
+      Alert.alert("Error", error.message || "Something went wrong.");
       dispatch(resetPage());
     }
   }, [error]);
 
-  // Request location permission (Android/iOS)
+  useEffect(() => {
+    if (success) {
+      setLoading(false);
+      Alert.alert('', 'Security Company Registered. Please wait for admin approval.');
+      setRegisterForm({
+        companyName: "",
+        contactPerson: "",
+        phone: "",
+        psiraNumber: "",
+        email: "",
+        address: "",
+        password: "",
+        confirmPassword: "",
+        branches: [],
+        securityServices: [],
+      });
+      dispatch(resetPage());
+    }
+  }, [success]);
+
+  // Request location permission
   const requestLocationPermission = async () => {
     if (Platform.OS === "android") {
       const granted = await PermissionsAndroid.request(
@@ -64,7 +94,7 @@ export default function SecurityCompanyRegister() {
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
-    return true; // iOS handled in Info.plist
+    return true;
   };
 
   // Get current location
@@ -91,7 +121,7 @@ export default function SecurityCompanyRegister() {
     })();
   }, []);
 
-  const onSignupPressed = () => {
+  const onSignupPressed = async () => {
     const {
       companyName,
       contactPerson,
@@ -106,14 +136,14 @@ export default function SecurityCompanyRegister() {
     } = registerForm;
 
     if (
-      companyName === "" ||
-      contactPerson === "" ||
-      password === "" ||
-      confirmPassword === "" ||
-      phone === "" ||
-      psiraNumber === "" ||
-      email === "" ||
-      address === "" ||
+      !companyName ||
+      !contactPerson ||
+      !password ||
+      !confirmPassword ||
+      !phone ||
+      !psiraNumber ||
+      !email ||
+      !address ||
       branches.length === 0 ||
       securityServices.length === 0
     ) {
@@ -136,7 +166,8 @@ export default function SecurityCompanyRegister() {
       return;
     }
 
-    // Dispatch registration with location
+    setLoading(true);
+
     dispatch(
       securityCompanyRegister({
         companyName,
@@ -213,7 +244,15 @@ export default function SecurityCompanyRegister() {
           datas={registerForm.securityServices}
           setDatas={(data) => setRegisterForm({ ...registerForm, securityServices: data })}
         />
-        <CommonButton needTopSpace text="Sign Up" onPress={onSignupPressed} />
+
+        <CommonButton
+          needTopSpace
+          text={loading ? "" : "Sign Up"}
+          onPress={onSignupPressed}
+          disabled={loading}
+        >
+          {loading && <ActivityIndicator size="small" color="#fff" />}
+        </CommonButton>
       </ScrollView>
     </View>
   );

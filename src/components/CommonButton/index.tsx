@@ -5,7 +5,8 @@ interface CommonButtonProps {
   text: string;
   onPress: () => void;
   needTopSpace?: boolean;
-  disabled?: boolean; 
+  disabled?: boolean;
+  children?: React.ReactNode; 
 }
 const CommonButton: React.FC<CommonButtonProps> = ({
   onPress,

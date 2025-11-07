@@ -34,6 +34,7 @@ interface DataState {
   items: any[];
   loading: boolean;
   error: ErrorProps | null;
+  success: boolean;
   isLoggedIn: boolean;
   userDetails: UserProps | null;
   accessToken: string | null;
@@ -45,6 +46,7 @@ const initialState: DataState = {
   items: [],
   loading: false,
   error: null,
+  success: false,
   isLoggedIn: false,
   userDetails: null,
   accessToken: null,
@@ -242,7 +244,8 @@ const authSlice = createSlice({
       .addCase(securityCompanyRegister.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
-        Alert.alert('', 'Security Company Registered. Please wait for admin approval.');
+        state.success = true;
+        
       })
       .addCase(registerDevice.fulfilled, (state, action) => {
         console.log('registerDevice action', action.payload);
